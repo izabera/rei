@@ -36,6 +36,13 @@ var::var(const char *s) {
     type = string;
     str = new std::string(s);
 }
+var::var(const var &other) {
+    type = other.type;
+    if (type == number)
+        num = other.num;
+    else
+        str = new std::string(Str(other));
+}
 var::~var() {
     if (type == string)
         delete &Str(*this);

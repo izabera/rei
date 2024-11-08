@@ -13,7 +13,7 @@ struct var {
 
     var() = default;
     var(var &&) = default;
-    var(const var &) = default;
+    var(const var &);
     var &operator=(var &&);
     var &operator=(const var &);
 
