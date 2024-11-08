@@ -1,5 +1,7 @@
 #pragma once
+
 #include "var.hpp"
+#include <initializer_list>
 
 struct io {
     void *impl = nullptr;
@@ -19,4 +21,9 @@ struct io {
     static io in;
     static io out;
     static io err;
+
+    static void print(var, io & = out);
+    static void println(var, io & = out);
+    static void print(std::initializer_list<var>, io & = out);
+    static void println(std::initializer_list<var>, io & = out);
 };

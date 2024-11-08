@@ -37,6 +37,25 @@ io &io::operator<<(const var &v) {
 
 io &io::operator>>(var &) { return *this; }
 
+void io::print(var v, io& stream) {
+    if (v.type == var::number)
+        fprintf(File(stream), "%g", v.num);
+    else
+        fprintf(File(stream), "%s", static_cast<std::string *>(v.str)->data());
+}
+void io::print(std::initializer_list<var> vars, io& stream) {
+    for (auto v : vars)
+        print(v, stream);
+}
+void io::println(var v, io& stream) {
+    print(v, stream);
+    print("\n", stream);
+}
+void io::println(std::initializer_list<var> vars, io& stream) {
+    for (auto v : vars)
+        println(v, stream);
+}
+
 struct console {
     console() {
         io::in.impl = new std::shared_ptr<FILE>(stdin, fclose);

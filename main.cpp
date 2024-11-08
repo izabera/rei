@@ -23,4 +23,7 @@ int main() {
     io::out << var{"4"} + 3 << "\n";
     io::out << var{4} - 3 << "\n";
     io::out << var{"4"} - 3 << "\n";
+
+    io::println("foo");
+    io::println({"four", 4, "five", 5}, io::err);
 }
