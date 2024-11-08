@@ -4,67 +4,67 @@
 #include <string>
 #include <utility>
 
-#define File(f) (static_cast<std::shared_ptr<FILE> *>((f).impl)->get())
 
-io &io::operator=(io &&other) {
+namespace Io {
+File &File::operator=(File &&other) {
     if (this != &other)
         std::swap(this->impl, other.impl);
     return *this;
 }
-io &io::operator=(const io &other) {
+File &File::operator=(const File &other) {
     if (this != &other) {
-        io tmp = other;
+        File tmp = other;
         std::swap(this->impl, tmp.impl);
     }
     return *this;
 }
 
-io::~io() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
+File::~File() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
 
-io::io(const var &name) {
+File::File(const var &name) {
     var str = name + "";
     std::string &strname = *static_cast<std::string *>(str.str);
     impl = new std::shared_ptr<FILE>(fopen(strname.data(), "w+"), fclose);
 }
 
-io &io::operator<<(const var &v) {
-    if (v.type == var::number)
-        fprintf(File(*this), "%g", v.num);
-    else
-        fprintf(File(*this), "%s", static_cast<std::string *>(v.str)->data());
-    return *this;
-}
-
-io &io::operator>>(var &) { return *this; }
-
-void io::print(var v, io& stream) {
-    if (v.type == var::number)
-        fprintf(File(stream), "%g", v.num);
-    else
-        fprintf(File(stream), "%s", static_cast<std::string *>(v.str)->data());
-}
-void io::print(std::initializer_list<var> vars, io& stream) {
-    for (auto v : vars)
-        print(v, stream);
-}
-void io::println(var v, io& stream) {
-    print(v, stream);
-    print("\n", stream);
-}
-void io::println(std::initializer_list<var> vars, io& stream) {
-    for (auto v : vars)
-        println(v, stream);
-}
-
 struct console {
     console() {
-        io::in.impl = new std::shared_ptr<FILE>(stdin, fclose);
-        io::out.impl = new std::shared_ptr<FILE>(stdout, fclose);
-        io::err.impl = new std::shared_ptr<FILE>(stderr, fclose);
+        in.impl = new std::shared_ptr<FILE>(stdin, fclose);
+        out.impl = new std::shared_ptr<FILE>(stdout, fclose);
+        err.impl = new std::shared_ptr<FILE>(stderr, fclose);
     }
     ~console() {}
 };
-io io::err;
-io io::out;
-io io::in;
-static console cons;
+File err;
+File out;
+File in;
+
+console cons;
+
+#define Underlying(f) (static_cast<std::shared_ptr<FILE> *>((f).impl)->get())
+void print(File &stream, const var &v) {
+    if (v.type == var::number)
+        fprintf(Underlying(stream), "%g", v.num);
+    else
+        fprintf(Underlying(stream), "%s", static_cast<std::string *>(v.str)->data());
+}
+void print(File &stream, std::initializer_list<var> vars) {
+    var sep = "";
+    for (const auto &v : vars) {
+        print(stream, sep);
+        sep = " ";
+        print(stream, v);
+    }
+}
+void print(const var &v) { print(out, v); }
+void print(std::initializer_list<var> vars) { print(out, vars); }
+
+void println(File &stream, const var &v) { print(stream, v + "\n"); }
+void println(File &stream, std::initializer_list<var> vars) {
+    print(stream, vars);
+    print(stream, "\n");
+}
+void println(const var &v) { println(out, v); }
+void println(std::initializer_list<var> vars) { println(out, vars); }
+
+} // namespace Io

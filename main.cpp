@@ -1,29 +1,36 @@
 #include "io.hpp"
 #include "var.hpp"
 
+using Io::print, Io::println;
+
 int main() {
     var x = 3;
     var y = "meow";
-    io::out << x << " " << y << "\n";
+    print(x);
+    print(x + "\n");
+    println({x, y});
 
     y = 3;
     y += x;
-    io::out << y << "\n";
+    print({x, y, "\n"});
 
     {
-        io f("file");
-        f << "hello\n";
+        Io::File f("file");
+        println(f, "hello");
     }
 
     y = "left";
     y += "right";
-    io::out << y << "\n";
+    println(y);
 
-    io::out << var{4} + 3 << "\n";
-    io::out << var{"4"} + 3 << "\n";
-    io::out << var{4} - 3 << "\n";
-    io::out << var{"4"} - 3 << "\n";
+    println(var{4} + 3);
+    println(var{"4"} + 3);
+    println(var{4} - 3);
+    println(var{"4"} - 3);
 
-    io::println("foo");
-    io::println({"four", 4, "five", 5}, io::err);
+    println("foo");
+    println(Io::err, {"writing", "to", "fd", 2});
+
+    for (var x; x < 10; x++)
+        println(x);
 }

@@ -3,27 +3,30 @@
 #include "var.hpp"
 #include <initializer_list>
 
-struct io {
+namespace Io {
+struct File {
     void *impl = nullptr;
 
-    io() = default;
-    io(io &&) = default;
-    io(const io &) = default;
-    io &operator=(io &&);
-    io &operator=(const io &);
-    ~io();
+    File() = default;
+    File(File &&) = default;
+    File(const File &) = default;
+    File &operator=(File &&);
+    File &operator=(const File &);
+    ~File();
 
-    io(const var &);
-
-    io &operator>>(var &);
-    io &operator<<(const var &);
-
-    static io in;
-    static io out;
-    static io err;
-
-    static void print(var, io & = out);
-    static void println(var, io & = out);
-    static void print(std::initializer_list<var>, io & = out);
-    static void println(std::initializer_list<var>, io & = out);
+    File(const var &);
 };
+
+extern File in;
+extern File out;
+extern File err;
+
+void print(const var &);
+void print(std::initializer_list<var>);
+void print(File &, const var &);
+void print(File &, std::initializer_list<var>);
+void println(const var &);
+void println(std::initializer_list<var>);
+void println(File &, const var &);
+void println(File &, std::initializer_list<var>);
+} // namespace Io
