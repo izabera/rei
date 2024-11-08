@@ -22,7 +22,7 @@ var &var::operator=(var &&other) {
 }
 var &var::operator=(const var &other) {
     if (this != &other) {
-        var tmp = other;
+        var tmp{other};
         std::swap(this->type, tmp.type);
         std::swap(this->num, tmp.num);
     }
@@ -43,6 +43,11 @@ var::var(const var &other) {
     else
         str = new std::string(Str(other));
 }
+var::var(var &&other) {
+    std::swap(type, other.type);
+    std::swap(num, other.num);
+}
+
 var::~var() {
     if (type == string)
         delete &Str(*this);

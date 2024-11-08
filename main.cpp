@@ -17,6 +17,10 @@ int main() {
     {
         Io::File f("file");
         println(f, "hello");
+        auto other = f;
+        auto other2 = f;
+        auto other3 = static_cast<Io::File &&>(f);
+        println(other3, "world");
     }
 
     y = "left";

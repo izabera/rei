@@ -8,8 +8,8 @@ struct File {
     void *impl = nullptr;
 
     File() = default;
-    File(File &&) = default;
-    File(const File &) = default;
+    File(File &&);
+    File(const File &);
     File &operator=(File &&);
     File &operator=(const File &);
     ~File();

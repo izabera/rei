@@ -2,20 +2,22 @@
 #include <cstdio>
 #include <memory>
 #include <string>
-#include <utility>
 
-
+#define Underlying(f) (*static_cast<std::shared_ptr<FILE> *>((f).impl))
 namespace Io {
+
+File::File(const File &other) { impl = new std::shared_ptr<FILE>(Underlying(other)); }
+File::File(File &&other) { std::swap(this->impl, other.impl); }
+File &File::operator=(const File &other) {
+    if (this != &other) {
+        File tmp{other};
+        std::swap(this->impl, tmp.impl);
+    }
+    return *this;
+}
 File &File::operator=(File &&other) {
     if (this != &other)
         std::swap(this->impl, other.impl);
-    return *this;
-}
-File &File::operator=(const File &other) {
-    if (this != &other) {
-        File tmp = other;
-        std::swap(this->impl, tmp.impl);
-    }
     return *this;
 }
 
@@ -41,12 +43,11 @@ File in;
 
 console cons;
 
-#define Underlying(f) (static_cast<std::shared_ptr<FILE> *>((f).impl)->get())
 void print(File &stream, const var &v) {
     if (v.type == var::number)
-        fprintf(Underlying(stream), "%g", v.num);
+        fprintf(Underlying(stream).get(), "%g", v.num);
     else
-        fprintf(Underlying(stream), "%s", static_cast<std::string *>(v.str)->data());
+        fprintf(Underlying(stream).get(), "%s", static_cast<std::string *>(v.str)->data());
 }
 void print(File &stream, std::initializer_list<var> vars) {
     var sep = "";
