@@ -4,26 +4,26 @@
 #include <string>
 
 #define Underlying(f) (*static_cast<std::shared_ptr<FILE> *>((f).impl))
-namespace Io {
+namespace io {
 
-File::File(const File &other) { impl = new std::shared_ptr<FILE>(Underlying(other)); }
-File::File(File &&other) { std::swap(this->impl, other.impl); }
-File &File::operator=(const File &other) {
+file::file(const file &other) { impl = new std::shared_ptr<FILE>(Underlying(other)); }
+file::file(file &&other) { std::swap(this->impl, other.impl); }
+file &file::operator=(const file &other) {
     if (this != &other) {
-        File tmp{other};
+        file tmp{other};
         std::swap(this->impl, tmp.impl);
     }
     return *this;
 }
-File &File::operator=(File &&other) {
+file &file::operator=(file &&other) {
     if (this != &other)
         std::swap(this->impl, other.impl);
     return *this;
 }
 
-File::~File() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
+file::~file() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
 
-File::File(const var &name) {
+file::file(const var &name) {
     var str = name + "";
     std::string &strname = *static_cast<std::string *>(str.str);
     impl = new std::shared_ptr<FILE>(fopen(strname.data(), "w+"), fclose);
@@ -37,19 +37,19 @@ struct console {
     }
     ~console() {}
 };
-File err;
-File out;
-File in;
+file err;
+file out;
+file in;
 
 console cons;
 
-void print(File &stream, const var &v) {
+void print(file &stream, const var &v) {
     if (v.type == var::number)
         fprintf(Underlying(stream).get(), "%g", v.num);
     else
         fprintf(Underlying(stream).get(), "%s", static_cast<std::string *>(v.str)->data());
 }
-void print(File &stream, std::initializer_list<var> vars) {
+void print(file &stream, std::initializer_list<var> vars) {
     var sep = "";
     for (const auto &v : vars) {
         print(stream, sep);
@@ -60,8 +60,8 @@ void print(File &stream, std::initializer_list<var> vars) {
 void print(const var &v) { print(out, v); }
 void print(std::initializer_list<var> vars) { print(out, vars); }
 
-void println(File &stream, const var &v) { print(stream, v + "\n"); }
-void println(File &stream, std::initializer_list<var> vars) {
+void println(file &stream, const var &v) { print(stream, v + "\n"); }
+void println(file &stream, std::initializer_list<var> vars) {
     print(stream, vars);
     print(stream, "\n");
 }

@@ -1,7 +1,7 @@
 #include "io.hpp"
 #include "var.hpp"
 
-using Io::print, Io::println;
+using io::print, io::println;
 
 int main() {
     var x = 3;
@@ -15,11 +15,11 @@ int main() {
     print({x, y, "\n"});
 
     {
-        Io::File f("file");
+        io::file f("file");
         println(f, "hello");
         auto other = f;
         auto other2 = f;
-        auto other3 = static_cast<Io::File &&>(f);
+        auto other3 = static_cast<io::file &&>(f);
         println(other3, "world");
     }
 
@@ -33,8 +33,10 @@ int main() {
     println(var{"4"} - 3);
 
     println("foo");
-    println(Io::err, {"writing", "to", "fd", 2});
+    println(io::err, {"writing", "to", "fd", 2});
 
     for (var x; x < 10; x++)
         println(x);
+
+    println(var{.2} + .1);
 }
