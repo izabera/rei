@@ -1,0 +1,4 @@
+a silly c++ thing to get variables that behave like in js
+
+it uses no templates and no constexpr anything, so i can use c++ to play advent
+of code and not wait 397h to compile each file
