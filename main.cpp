@@ -1,11 +1,26 @@
+#include "io.hpp"
 #include "var.hpp"
 
-#include <iostream>
 int main() {
     var x = 3;
     var y = "meow";
-    std::cout << x.num << '\n';
-    std::cout << *static_cast<std::string*>(y.str) << '\n';
+    io::out << x << " " << y << "\n";
+
     y = 3;
-    std::cout << y.num << '\n';
+    y += x;
+    io::out << y << "\n";
+
+    {
+        io f("file");
+        f << "hello\n";
+    }
+
+    y = "left";
+    y += "right";
+    io::out << y << "\n";
+
+    io::out << var{4} + 3 << "\n";
+    io::out << var{"4"} + 3 << "\n";
+    io::out << var{4} - 3 << "\n";
+    io::out << var{"4"} - 3 << "\n";
 }
