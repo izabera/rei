@@ -1,4 +1,5 @@
 #include "io.hpp"
+#include "dict.hpp"
 #include "var.hpp"
 
 using io::print, io::println;
@@ -39,4 +40,12 @@ int main() {
         println(x);
 
     println(var{.2} + .1);
+
+
+    dict d;
+    println("2" in d ? "yes" : "no");
+    d[2] = "asdf";
+    println(d[2]);
+    println("2" in d ? "yes" : "no");
+    println(d[3]);
 }
