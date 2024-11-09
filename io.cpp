@@ -45,12 +45,13 @@ file in;
 console cons;
 
 void print(file &stream, const var &v) {
-    if (v.type == var::boolean)
-        fprintf(Underlying(stream).get(), v.b ? "true" : "false");
-    else if (v.type == var::number)
-        fprintf(Underlying(stream).get(), "%g", v.num);
-    else
-        fprintf(Underlying(stream).get(), "%s", static_cast<std::string *>(v.str)->data());
+    auto file = Underlying(stream).get();
+    switch (v.type) {
+        case var::null:    fprintf(file, "null"); break;
+        case var::boolean: fprintf(file, v.b ? "true" : "false"); break;
+        case var::number:  fprintf(file, "%g", v.num); break;
+        case var::string:  fprintf(file, "%s", static_cast<std::string *>(v.str)->data());
+    }
 }
 void print(file &stream, std::initializer_list<var> vars) {
     var sep = "";

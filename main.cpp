@@ -36,7 +36,7 @@ int main() {
     println("foo");
     println(io::err, {"writing", "to", "fd", 2});
 
-    for (var x; x < 10; x++)
+    for (var x = 0; x < 10; x++)
         println(x);
 
     println(var{.2} + .1);
@@ -56,4 +56,15 @@ int main() {
     var q;
     for (auto [k, v] : d)
         println({q++, k, v});
+
+    println(var{});
+    var empty;
+    println(empty);
+    println(empty == var{});
+    println(empty == empty);
+    println(empty + "x" == "nullx");
+    println(empty + 1 == 1);
+    println(++empty == 1);
+    println(empty++ == 1);
+    println(empty == 2);
 }

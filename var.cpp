@@ -9,6 +9,7 @@
 
 static std::string ToString(const var &v) {
     switch (v.type) {
+        case var::null:    return "null";
         case var::boolean: return v.b ? "true" : "false";
         case var::number:  return std::format("{}", v.num);
         case var::string:  return Str(v);
@@ -64,12 +65,12 @@ var::var(const char *s) {
 
 var::var(const var &other) {
     type = other.type;
-    if (type == boolean)
-        b = other.b;
-    else if (type == number)
-        num = other.num;
-    else
-        str = new std::string(Str(other));
+    switch (type) {
+        case null:    break;
+        case boolean: b = other.b; break;
+        case number:  num = other.num; break;
+        case string:  str = new std::string(Str(other)); break;
+    }
 }
 var::var(var &&other) {
     std::swap(type, other.type);
@@ -83,6 +84,7 @@ var::~var() {
 
 var var::operator+() const {
     switch (type) {
+        case null:    return 0;
         case boolean: return b ? 1 : 0;
         case number:  return *this;
         case string:  return strtod(Str(*this).data(), nullptr);
@@ -104,16 +106,11 @@ var var::operator--(int) {
     return tmp;
 }
 
-static auto common_type(const var &lhs, const var &rhs) {
-    if (lhs.type == var::string || rhs.type == var::string)
-        return var::string;
-    if (lhs.type == var::number || rhs.type == var::number)
-        return var::number;
-    return var::boolean;
-}
+static auto common_type(const var &lhs, const var &rhs) { return std::max(lhs.type, rhs.type); }
 
 var var::operator+(const var &other) const {
     switch (common_type(*this, other)) {
+        case null:    return 0;
         case boolean: return int(b) + int(other.b);
         case number:  return num + other.num;
         case string:  ;
@@ -149,6 +146,7 @@ bit(>>);
 #define cmp(op)                                                                                    \
     var var::operator op(const var & other) const {                                                \
         switch (common_type(*this, other)) {                                                       \
+            case null:    return true;                                                             \
             case boolean: return b op other.b;                                                     \
             case number:  return num op other.num;                                                 \
             case string:  return ToString(*this) op ToString(other);                                \
@@ -169,6 +167,7 @@ var var::operator||(const var &other) const { return *this ? other : *this; }
 
 var::operator bool() const {
     switch (type) {
+        case null:    return false;
         case boolean: return b;
         case number:  return num != 0;
         case string:  return Str(*this) != "";

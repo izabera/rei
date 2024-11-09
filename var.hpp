@@ -2,10 +2,11 @@
 
 struct var {
     enum {
+        null,
         boolean,
         number,
         string,
-    } type = number;
+    } type = null;
 
     union {
         bool b;
