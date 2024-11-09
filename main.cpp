@@ -57,6 +57,13 @@ int main() {
     for (auto [k, v] : d)
         println({q++, k, v});
 
+    var letters = "abcdefg";
+    var nums = 1234567890;
+    println(letters[2]);
+    println(letters[2, 4]);
+    println(nums[2]);
+    println(nums[2, 4]);
+
     println(var{});
     var empty;
     println(empty);

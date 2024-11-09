@@ -174,3 +174,25 @@ var::operator bool() const {
     }
     return false; // unreachable
 }
+
+var var::operator[](const var &pos, const var &count) const {
+    auto self = ToString(*this);
+    std::string result;
+
+    auto off = Int(pos);
+    auto len = Int(count);
+
+    if (len == -1) {
+        if (off < int(self.size()))
+            result += self[off];
+    }
+    else {
+        for (auto i = 0; i < len && off + i < int(self.size()); i++)
+            result += self[off + i];
+    }
+    var ret;
+    ret.type = string;
+    ret.str = new std::string(result);
+
+    return ret;
+}

@@ -81,4 +81,6 @@ struct var {
     var operator||(const var &) const;
 
     explicit operator bool() const;
+
+    var operator[](const var &pos, const var& count = -1) const;
 };
