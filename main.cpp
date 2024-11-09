@@ -53,7 +53,7 @@ int main() {
     println(d[4]);
     println(d["foo"]);
 
-    for (auto [k, v] : d) {
-        println({k, v});
-    }
+    var q;
+    for (auto [k, v] : d)
+        println({q++, k, v});
 }
