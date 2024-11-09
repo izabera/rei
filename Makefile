@@ -1,8 +1,8 @@
 CXX = clang++
-CXXFLAGS = -std=c++20
+CXXFLAGS = -std=c++23 -MMD -Wall -Wextra -ggdb3
 
 ifdef DEBUG
-CXXFLAGS += -Wall -Wextra -ggdb3 -fsanitize=address,undefined
+CXXFLAGS += -fsanitize=address,undefined
 endif
 
 ifndef NOTIME
@@ -19,6 +19,8 @@ libjs.a: var.o io.o dict.o
 	$(AR) $(ARFLAGS) $@ $?
 
 clean:
-	rm -rf *.o *.a main file .cache compile_commands.json
+	rm -rf *.o *.a *.d main file .cache compile_commands.json
 
 .PHONY: clean
+
+-include *.d
