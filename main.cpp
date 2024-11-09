@@ -1,5 +1,5 @@
-#include "io.hpp"
 #include "dict.hpp"
+#include "io.hpp"
 #include "var.hpp"
 
 using io::print, io::println;
@@ -41,12 +41,12 @@ int main() {
 
     println(var{.2} + .1);
 
-
     dict d;
-    println("2" in d);
+    println(d.contains("2"));
     d[2] = "asdf";
     println(d[2]);
-    println("2" in d);
+    println(d.contains("2")); // 2 becomes "2" during lookup
+    println(d[2] == d["2"]);
     println(d[3]);
     d[4] = true;
     d["foo"] = "bar";

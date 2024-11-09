@@ -1,7 +1,8 @@
 #pragma once
 
-#include "var.hpp"
 #include <initializer_list>
+
+struct var;
 
 namespace io {
 struct file {
@@ -29,4 +30,4 @@ void println(const var &);
 void println(std::initializer_list<var>);
 void println(file &, const var &);
 void println(file &, std::initializer_list<var>);
-} // namespace Io
+} // namespace io

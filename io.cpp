@@ -1,4 +1,5 @@
 #include "io.hpp"
+#include "var.hpp"
 #include <cstdio>
 #include <memory>
 #include <string>
@@ -70,4 +71,4 @@ void println(file &stream, std::initializer_list<var> vars) {
 void println(const var &v) { println(out, v); }
 void println(std::initializer_list<var> vars) { println(out, vars); }
 
-} // namespace Io
+} // namespace io

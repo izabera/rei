@@ -1,4 +1,5 @@
 #include "dict.hpp"
+#include "var.hpp"
 #include <map>
 
 // the default comparison in libstdc++'s std map doesn't call explicit operator bool :(
@@ -10,7 +11,7 @@ using maptype = std::map<var, var, cmp>;
 
 var &dict::operator[](const var &v) { return Map(*this)[v]; }
 
-bool operator->*(const var &v, const dict &d) { return Map(d).contains(v); }
+bool dict::contains(const var &v) const { return Map(*this).contains(v); }
 
 dict::dict() { impl = new maptype; }
 dict::dict(const dict &other) { impl = new maptype(Map(other)); }
