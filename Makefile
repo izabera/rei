@@ -1,9 +1,16 @@
 CXX = clang++
-CXXFLAGS = -std=c++23 -Wall -Wextra -ggdb3 -fsanitize=address,undefined
-#LDFLAGS = -fuse-ld=mold
+CXXFLAGS = -std=c++20
 
-export TIME = \nreal\t%E\nuser\t%U\nsys\t%S
+ifdef DEBUG
+CXXFLAGS += -Wall -Wextra -ggdb3 -fsanitize=address,undefined
+endif
+
+ifndef NOTIME
+ifneq (, $(shell command -v time))
+export TIME = real\t%E\tuser\t%t\tsys\t%S
 SHELL = time sh
+endif
+endif
 
 main: main.o libjs.a
 	$(LINK.cpp) $^ $(LDLIBS) -o $@
