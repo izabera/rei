@@ -7,14 +7,14 @@
 #define Int(v) (int((+(v)).num))
 #define Double(v) ((+(v)).num)
 
-static auto ToString = [](const var &v) -> std::string {
+static std::string ToString(const var &v) {
     switch (v.type) {
         case var::boolean: return v.b ? "true" : "false";
         case var::number:  return std::format("{}", v.num);
         case var::string:  return Str(v);
     }
     return "unreachable";
-};
+}
 
 var &var::operator=(var &&other) {
     if (this != &other) {
@@ -64,7 +64,9 @@ var::var(const char *s) {
 
 var::var(const var &other) {
     type = other.type;
-    if (type == number)
+    if (type == boolean)
+        b = other.b;
+    else if (type == number)
         num = other.num;
     else
         str = new std::string(Str(other));

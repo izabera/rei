@@ -28,3 +28,14 @@ dict &dict::operator=(dict &&other) {
         std::swap(this->impl, other.impl);
     return *this;
 }
+
+dict::iter dict::begin() const { return dict::iter{0, this}; }
+dict::iter dict::end() const { return dict::iter{Map(*this).size(), this}; }
+dict::iter &dict::iter::operator++() {
+    pos++;
+    return *this;
+}
+const dict::kv dict::iter::operator*() const {
+    auto it = std::next(Map(*map).begin(), pos);
+    return {it->first, it->second};
+}

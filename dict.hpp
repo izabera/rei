@@ -1,6 +1,6 @@
 #pragma once
 
-struct var;
+#include "var.hpp"
 struct dict {
     void *impl;
 
@@ -11,6 +11,20 @@ struct dict {
     dict &operator=(const dict &);
 
     var &operator[](const var &);
-
     bool contains(const var &) const;
+
+    struct kv {
+        var key;
+        var value;
+    };
+    struct iter {
+        unsigned long pos = 0;
+        const dict *map;
+        iter &operator++();
+        const kv operator*() const;
+        bool operator==(const iter &) const = default;
+        bool operator!=(const iter &) const = default;
+    };
+    iter begin() const;
+    iter end() const;
 };

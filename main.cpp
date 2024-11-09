@@ -52,4 +52,8 @@ int main() {
     d["foo"] = "bar";
     println(d[4]);
     println(d["foo"]);
+
+    for (auto [k, v] : d) {
+        println({k, v});
+    }
 }
