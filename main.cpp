@@ -43,9 +43,13 @@ int main() {
 
 
     dict d;
-    println("2" in d ? "yes" : "no");
+    println("2" in d);
     d[2] = "asdf";
     println(d[2]);
-    println("2" in d ? "yes" : "no");
+    println("2" in d);
     println(d[3]);
+    d[4] = true;
+    d["foo"] = "bar";
+    println(d[4]);
+    println(d["foo"]);
 }

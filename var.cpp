@@ -7,10 +7,13 @@
 #define Int(v) (int((+(v)).num))
 #define Double(v) ((+(v)).num)
 
-static auto ToString = [](const var &v) {
-    if (v.type == var::number)
-        return std::format("{}", v.num);
-    return Str(v);
+static auto ToString = [](const var &v) -> std::string {
+    switch (v.type) {
+        case var::boolean: return v.b ? "true" : "false";
+        case var::number:  return std::format("{}", v.num);
+        case var::string:  return Str(v);
+    }
+    return "unreachable";
 };
 
 var &var::operator=(var &&other) {
@@ -28,14 +31,37 @@ var &var::operator=(const var &other) {
     }
     return *this;
 }
-var::var(double n) {
-    type = number;
-    num = n;
+
+var::var(bool val) {
+    type = boolean;
+    b = val;
 }
+
+#define num_constructor(t)                                                                         \
+    var::var(t n) {                                                                                \
+        type = number;                                                                             \
+        num = n;                                                                                   \
+    }
+
+num_constructor(char);
+num_constructor(short);
+num_constructor(int);
+num_constructor(long);
+num_constructor(long long);
+num_constructor(unsigned char);
+num_constructor(unsigned short);
+num_constructor(unsigned int);
+num_constructor(unsigned long);
+num_constructor(unsigned long long);
+num_constructor(float);
+num_constructor(double);
+num_constructor(long double);
+
 var::var(const char *s) {
     type = string;
     str = new std::string(s);
 }
+
 var::var(const var &other) {
     type = other.type;
     if (type == number)
@@ -54,9 +80,12 @@ var::~var() {
 }
 
 var var::operator+() const {
-    if (type == number)
-        return *this;
-    return strtod(Str(*this).data(), nullptr);
+    switch (type) {
+        case boolean: return b ? 1 : 0;
+        case number:  return *this;
+        case string:  return strtod(Str(*this).data(), nullptr);
+    }
+    return 0; // unreachable
 }
 var var::operator-() const { return -Double(*this); }
 
@@ -73,9 +102,20 @@ var var::operator--(int) {
     return tmp;
 }
 
+static auto common_type(const var &lhs, const var &rhs) {
+    if (lhs.type == var::string || rhs.type == var::string)
+        return var::string;
+    if (lhs.type == var::number || rhs.type == var::number)
+        return var::number;
+    return var::boolean;
+}
+
 var var::operator+(const var &other) const {
-    if (type == number && other.type == number)
-        return num + other.num;
+    switch (common_type(*this, other)) {
+        case boolean: return int(b) + int(other.b);
+        case number:  return num + other.num;
+        case string:  ;
+    }
 
     var ret;
     ret.type = string;
@@ -106,9 +146,12 @@ bit(>>);
 
 #define cmp(op)                                                                                    \
     var var::operator op(const var & other) const {                                                \
-        if (type == number && other.type == number)                                                \
-            return num op other.num;                                                               \
-        return ToString(*this) op ToString(other);                                                 \
+        switch (common_type(*this, other)) {                                                       \
+            case boolean: return b op other.b;                                                     \
+            case number:  return num op other.num;                                                 \
+            case string:  return ToString(*this) op ToString(other);                                \
+        }                                                                                          \
+        return false; /* unreachable */                                                            \
     }
 
 cmp(<);
@@ -122,4 +165,11 @@ var var::operator!() const { return *this ? 1 : 0; }
 var var::operator&&(const var &other) const { return *this ? *this : other; }
 var var::operator||(const var &other) const { return *this ? other : *this; }
 
-var::operator bool() const { return type == number ? num != 0 : Str(*this) == ""; }
+var::operator bool() const {
+    switch (type) {
+        case boolean: return b;
+        case number:  return num != 0;
+        case string:  return Str(*this) != "";
+    }
+    return false; // unreachable
+}

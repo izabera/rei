@@ -44,7 +44,9 @@ file in;
 console cons;
 
 void print(file &stream, const var &v) {
-    if (v.type == var::number)
+    if (v.type == var::boolean)
+        fprintf(Underlying(stream).get(), v.b ? "true" : "false");
+    else if (v.type == var::number)
         fprintf(Underlying(stream).get(), "%g", v.num);
     else
         fprintf(Underlying(stream).get(), "%s", static_cast<std::string *>(v.str)->data());
