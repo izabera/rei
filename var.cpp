@@ -1,6 +1,7 @@
 #include "var.hpp"
 #include "dict.hpp"
 #include <cmath>
+#include <cstring>
 #include <format>
 #include <string>
 
@@ -167,8 +168,8 @@ cmp(==);
 cmp(!=);
 
 var var::operator!() const { return *this ? 1 : 0; }
-var var::operator&&(const var &other) const { return *this ? *this : other; }
-var var::operator||(const var &other) const { return *this ? other : *this; }
+var var::operator&&(const var &other) const { return bool(*this) && bool(other); }
+var var::operator||(const var &other) const { return bool(*this) || bool(other); }
 
 var::operator bool() const {
     switch (type) {
@@ -225,4 +226,25 @@ dict var::split(const var &s) const {
     }
 
     return d;
+}
+
+var var::strip(const var &chars) const {
+    auto self = ToString(*this);
+    auto stripset = ToString(chars);
+
+    // basically what strspn does, but not limited to c strings
+    bool set[256]{};
+    for (unsigned char c : stripset)
+        set[c] = true;
+
+    size_t prefix = 0;
+    for (; prefix < self.size() && set[(unsigned char)self[prefix]]; prefix++)
+        ;
+
+    // strspn in reverse from the end
+    size_t suffix = self.size();
+    for (; suffix > 0 && set[(unsigned char)self[suffix-1]]; suffix--)
+        ;
+
+    return FromString(self.substr(prefix, suffix - prefix));
 }

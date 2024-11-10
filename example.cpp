@@ -97,4 +97,10 @@ int main() {
         println({k, v});
     for (auto [k, v] : var(123040506).split(0))
         println({k, v});
+
+    var foo = "    leading and trailing spaces     ";
+    println(var{"x"} + foo.strip() + "x");
+    println(var{"x"} + foo.strip(" ls") + "x");
+    println(var{"x"} + foo.strip("wxzy") + "x");
+    println(var{"x"} + var{"unlawful"}.strip({}) + "x");
 }

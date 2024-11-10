@@ -12,9 +12,13 @@ SHELL = time sh
 endif
 endif
 
-all: main aoc/all
+aocsrc = $(wildcard aoc/*.cpp)
+aocbin = $(aocsrc:.cpp=)
+aoc/all: $(aocbin)
 
-main: main.o libjs.a
+all: example aoc/all
+
+example: example.o libjs.a
 	$(LINK.cpp) $^ $(LDLIBS) -o $@
 
 libjs.a: dict.o functional.o io.o var.o
@@ -22,14 +26,11 @@ libjs.a: dict.o functional.o io.o var.o
 
 aoc/%: aoc/%.cpp libjs.a
 	$(LINK.cpp) $< $(LDLIBS) -o $@
-aocsrc = $(wildcard aoc/*.cpp)
-aocbin = $(aocsrc:.cpp=)
 $(aocbin): CXXFLAGS += -I.
 $(aocbin): LDLIBS += libjs.a
-aoc/all: $(aocbin)
 
 clean:
-	rm -rf *.[ado] aoc/*.[ado] $(aocbin) main file.tmp
+	rm -rf *.[ado] aoc/*.[ado] $(aocbin) example file.tmp
 
 .PHONY: clean all aoc/all
 

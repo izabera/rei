@@ -9,7 +9,7 @@ advent of code and not wait 397h to compile each file
 
 
 
-main.cpp is a mostly complete example of how to use all the functionality in
+example.cpp is a mostly complete example of how to use all the functionality in
 the library, and it builds in single-digit centiseconds on my machine
 (if you remove the -MMD)
 

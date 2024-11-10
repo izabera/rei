@@ -86,4 +86,5 @@ struct var {
     var operator[](const var &pos, const var &count = -1) const;
 
     dict split(const var &sep = " ") const;
+    var strip(const var &chars = " \n") const;
 };
