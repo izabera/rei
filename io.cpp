@@ -44,8 +44,8 @@ file in;
 
 console cons;
 
-void print(file &stream, const var &v) {
-    auto file = Underlying(stream).get();
+void file::print(const var &v) {
+    auto file = Underlying(*this).get();
     switch (v.type) {
         case var::null:    fprintf(file, "null"); break;
         case var::boolean: fprintf(file, v.b ? "true" : "false"); break;
@@ -53,23 +53,23 @@ void print(file &stream, const var &v) {
         case var::string:  fprintf(file, "%s", static_cast<std::string *>(v.str)->data());
     }
 }
-void print(file &stream, std::initializer_list<var> vars) {
+void file::print(std::initializer_list<var> vars) {
     var sep = "";
     for (const auto &v : vars) {
-        print(stream, sep);
+        print(sep);
         sep = " ";
-        print(stream, v);
+        print(v);
     }
 }
-void print(const var &v) { print(out, v); }
-void print(std::initializer_list<var> vars) { print(out, vars); }
-
-void println(file &stream, const var &v) { print(stream, v + "\n"); }
-void println(file &stream, std::initializer_list<var> vars) {
-    print(stream, vars);
-    print(stream, "\n");
+void file::println(const var &v) { out.print(v + "\n"); }
+void file::println(std::initializer_list<var> vars) {
+    print(vars);
+    print("\n");
 }
-void println(const var &v) { println(out, v); }
-void println(std::initializer_list<var> vars) { println(out, vars); }
+
+void print(const var &v) { out.print(v); }
+void print(std::initializer_list<var> vars) { out.print(vars); }
+void println(const var &v) { out.println(v); }
+void println(std::initializer_list<var> vars) { out.println(vars); }
 
 } // namespace io

@@ -16,6 +16,11 @@ struct file {
     ~file();
 
     file(const var &);
+
+    void print(const var &);
+    void print(std::initializer_list<var>);
+    void println(const var &);
+    void println(std::initializer_list<var>);
 };
 
 extern file in;
@@ -24,10 +29,6 @@ extern file err;
 
 void print(const var &);
 void print(std::initializer_list<var>);
-void print(file &, const var &);
-void print(file &, std::initializer_list<var>);
 void println(const var &);
 void println(std::initializer_list<var>);
-void println(file &, const var &);
-void println(file &, std::initializer_list<var>);
 } // namespace io

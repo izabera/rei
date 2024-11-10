@@ -19,7 +19,7 @@ libjs.a: var.o io.o dict.o
 	$(AR) $(ARFLAGS) $@ $?
 
 clean:
-	rm -rf *.o *.a *.d main file .cache
+	rm -rf *.o *.a *.d main file.tmp
 
 .PHONY: clean
 

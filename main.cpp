@@ -16,12 +16,12 @@ int main() {
     print({x, y, "\n"});
 
     {
-        io::file f("file");
-        println(f, "hello");
+        io::file f("file.tmp");
+        f.println("hello");
         auto other = f;
         auto other2 = f;
         auto other3 = static_cast<io::file &&>(f);
-        println(other3, "world");
+        other3.println("world");
     }
 
     y = "left";
@@ -34,7 +34,7 @@ int main() {
     println(var{"4"} - 3);
 
     println("foo");
-    println(io::err, {"writing", "to", "fd", 2});
+    io::err.println({"writing", "to", "fd", 2});
 
     for (var x = 0; x < 10; x++)
         println(x);
