@@ -205,17 +205,24 @@ dict var::split(const var &s) const {
     auto self = ToString(*this);
     auto sep = ToString(s);
 
-    size_t prev_pos = 0, pos = 0, idx = 0;
     dict d;
 
-    while ((pos = self.find(sep, pos)) != std::string::npos) {
+    size_t idx = 0;
+    if (sep != "") {
+        size_t prev_pos = 0, pos = 0;
+        while ((pos = self.find(sep, pos)) != std::string::npos) {
+            auto substr = self.substr(prev_pos, pos - prev_pos);
+            d[idx++] = FromString(substr);
+            prev_pos = ++pos;
+        }
+
         auto substr = self.substr(prev_pos, pos - prev_pos);
         d[idx++] = FromString(substr);
-        prev_pos = ++pos;
     }
-
-    auto substr = self.substr(prev_pos, pos - prev_pos);
-    d[idx++] = FromString(substr);
+    else {
+        for (auto c : self)
+            d[idx++] = FromString({c});
+    }
 
     return d;
 }

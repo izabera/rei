@@ -1,6 +1,7 @@
 #pragma once
 
 #include "var.hpp"
+
 struct dict {
     void *impl;
 
@@ -12,6 +13,7 @@ struct dict {
 
     var &operator[](const var &);
     bool contains(const var &) const;
+    var size() const;
 
     struct kv {
         var key;
@@ -27,4 +29,9 @@ struct dict {
     };
     iter begin() const;
     iter end() const;
+
+    dict map(var (*unary)(const var &)) const;
+    var reduce(var (*binary)(const var &, const var &)) const;
+    dict filter(var (*unary)(const var &)) const;
+    var join(const var &sep = {}) const;
 };

@@ -17,19 +17,19 @@ all: main aoc/all
 main: main.o libjs.a
 	$(LINK.cpp) $^ $(LDLIBS) -o $@
 
-libjs.a: var.o io.o dict.o
+libjs.a: dict.o functional.o io.o var.o
 	$(AR) $(ARFLAGS) $@ $?
 
-aoc/%: CXXFLAGS += -I.
-aoc/%: aoc/%.o libjs.a
-	$(LINK.cpp) $^ $(LDLIBS) -o $@
-
+aoc/%: aoc/%.cpp libjs.a
+	$(LINK.cpp) $< $(LDLIBS) -o $@
 aocsrc = $(wildcard aoc/*.cpp)
 aocbin = $(aocsrc:.cpp=)
+$(aocbin): CXXFLAGS += -I.
+$(aocbin): LDLIBS += libjs.a
 aoc/all: $(aocbin)
 
 clean:
-	rm -rf *.o *.a *.d aoc/*.d $(aocbin) main file.tmp
+	rm -rf *.[ado] aoc/*.[ado] $(aocbin) main file.tmp
 
 .PHONY: clean all aoc/all
 
