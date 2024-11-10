@@ -15,14 +15,28 @@ int main() {
     y += x;
     print({x, y, "\n"});
 
+    println("writing to file");
+    {
+        io::file f("file.tmp", io::w);
+        f.println("hello (from f)");
+        auto copy = f;
+        copy.println("world (from copy)");
+        auto copy2 = f;
+        copy2.println("world (from copy2)");
+        auto moved = static_cast<io::file &&>(f);
+        moved.println("world (from moved)");
+    }
+
+    println("reading line by line");
     {
         io::file f("file.tmp");
-        f.println("hello");
-        auto other = f;
-        auto other2 = f;
-        auto other3 = static_cast<io::file &&>(f);
-        other3.println("world");
+        for (var q = 0, line; (line = f.readline()); q++)
+            println({"line", q, line});
     }
+    println("reading 5 bytes");
+    println(io::file("file.tmp").read(5));
+    println("reading the full file");
+    print(io::file("file.tmp").read());
 
     y = "left";
     y += "right";

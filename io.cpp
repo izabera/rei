@@ -24,10 +24,13 @@ file &file::operator=(file &&other) {
 
 file::~file() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
 
-file::file(const var &name) {
+file::file(const var &name, mode m) {
     var str = name + "";
     std::string &strname = *static_cast<std::string *>(str.str);
-    impl = new std::shared_ptr<FILE>(fopen(strname.data(), "w+"), fclose);
+
+    const char *fopenmode = m == r ? "r" : m == w ? "w" : "w+";
+    auto ptr = fopen(strname.data(), fopenmode);
+    impl = new std::shared_ptr<FILE>(ptr, fclose);
 }
 
 struct console {
@@ -36,7 +39,6 @@ struct console {
         out.impl = new std::shared_ptr<FILE>(stdout, fclose);
         err.impl = new std::shared_ptr<FILE>(stderr, fclose);
     }
-    ~console() {}
 };
 file err;
 file out;
@@ -61,7 +63,7 @@ void file::print(std::initializer_list<var> vars) {
         print(v);
     }
 }
-void file::println(const var &v) { out.print(v + "\n"); }
+void file::println(const var &v) { print(v + "\n"); }
 void file::println(std::initializer_list<var> vars) {
     print(vars);
     print("\n");
@@ -72,4 +74,47 @@ void print(std::initializer_list<var> vars) { out.print(vars); }
 void println(const var &v) { out.println(v); }
 void println(std::initializer_list<var> vars) { out.println(vars); }
 
+var file::readline() {
+    var ret;
+    auto file = Underlying(*this).get();
+
+    char *line = nullptr;
+    size_t size = 0;
+    long l = getline(&line, &size, file);
+    if (l != -1) {
+        if (line[l - 1] == '\n')
+            line[--l] = 0;
+
+        ret.type = var::string;
+        ret.str = new std::string(line, size);
+    }
+
+    free(line);
+    return ret;
+}
+
+var file::read(const var &len) {
+    var ret;
+    auto file = Underlying(*this).get();
+
+    auto remaining = len.type == var::null ? LONG_MAX : long((+len).num);
+    std::string tmp;
+
+    constexpr long bufsize = 1024;
+    static char buf[bufsize];
+
+    while (1) {
+        auto want = std::min(remaining, bufsize);
+        long l = fread(buf, 1, want, file);
+        if (l <= 0)
+            break;
+        remaining -= l;
+        tmp += {buf, size_t(l)};
+    }
+
+    ret.type = var::string;
+    ret.str = new std::string(tmp);
+
+    return ret;
+}
 } // namespace io

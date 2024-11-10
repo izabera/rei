@@ -1,10 +1,12 @@
 #pragma once
 
+#include "var.hpp"
 #include <initializer_list>
 
-struct var;
-
 namespace io {
+
+enum mode { r, w, rw };
+
 struct file {
     void *impl = nullptr;
 
@@ -15,12 +17,15 @@ struct file {
     file &operator=(const file &);
     ~file();
 
-    file(const var &);
+    file(const var &name, mode = r);
 
     void print(const var &);
     void print(std::initializer_list<var>);
     void println(const var &);
     void println(std::initializer_list<var>);
+
+    var read(const var &len = {});
+    var readline();
 };
 
 extern file in;

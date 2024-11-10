@@ -6,6 +6,7 @@
 
 #define Str(v) (*static_cast<std::string *>((v).str))
 #define Int(v) (int((+(v)).num))
+#define Long(v) (long((+(v)).num))
 #define Double(v) ((+(v)).num)
 
 static std::string ToString(const var &v) {
@@ -137,7 +138,7 @@ var &var::operator/=(const var &other) { return *this = *this / other; }
 var &var::operator%=(const var &other) { return *this = *this % other; }
 
 #define bit(op)                                                                                    \
-    var var::operator op(const var & other) const { return Int(*this) op Int(other); }             \
+    var var::operator op(const var & other) const { return Long(*this) op Long(other); }           \
     var &var::operator op##=(const var & other) { return *this = *this op other; }
 
 var var::operator~() const { return ~Int(*this); }
@@ -183,15 +184,17 @@ var var::operator[](const var &pos, const var &count) const {
     auto self = ToString(*this);
     std::string result;
 
-    auto off = Int(pos);
-    auto len = Int(count);
+    auto off = Long(pos);
+    auto len = Long(count);
+
+    auto selfsize = long(self.size());
 
     if (len == -1) {
-        if (off < int(self.size()))
+        if (off < selfsize)
             result += self[off];
     }
     else {
-        for (auto i = 0; i < len && off + i < int(self.size()); i++)
+        for (long i = 0; i < len && off + i < selfsize; i++)
             result += self[off + i];
     }
 
