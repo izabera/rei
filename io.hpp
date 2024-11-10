@@ -36,4 +36,7 @@ void print(const var &);
 void print(std::initializer_list<var>);
 void println(const var &);
 void println(std::initializer_list<var>);
+
+var read(const var &len = {});
+var readline();
 } // namespace io

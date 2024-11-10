@@ -1,17 +1,25 @@
-a silly c++ thing to get variables that behave like in js
+a silly c++23 thing to get variables that behave like in js
 
-variables can be strings, numbers or booleans
-
-dict maps var -> var
+- variables can be strings, numbers, booleans, or nulls
+- dict is a map from var to var
+- io reads and writes to files
 
 this uses no templates and no constexpr anything, so i can use c++ to play
 advent of code and not wait 397h to compile each file
 
 
 
-main.cpp is an example of how to use, and it builds in single-digit
-centiseconds on my machine
+main.cpp is a mostly complete example of how to use all the functionality in
+the library, and it builds in single-digit centiseconds on my machine
+(if you remove the -MMD)
 
+
+
+the aoc directory has some solutions for advent of code 2019
+
+
+
+slightly outdated log but the timings are not orders of magnitude off:
 
 $ make
 clang++ -std=c++20   -c -o main.o main.cpp

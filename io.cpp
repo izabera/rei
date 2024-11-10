@@ -48,18 +48,14 @@ console cons;
 
 void file::print(const var &v) {
     auto file = Underlying(*this).get();
-    switch (v.type) {
-        case var::null:    fprintf(file, "null"); break;
-        case var::boolean: fprintf(file, v.b ? "true" : "false"); break;
-        case var::number:  fprintf(file, "%g", v.num); break;
-        case var::string:  fprintf(file, "%s", static_cast<std::string *>(v.str)->data());
-    }
+    auto var = v + "";
+    fprintf(file, "%s", static_cast<std::string *>(var.str)->data());
 }
 void file::print(std::initializer_list<var> vars) {
-    var sep = "";
+    auto i = 0;
     for (const auto &v : vars) {
-        print(sep);
-        sep = " ";
+        if (i++)
+            print(" ");
         print(v);
     }
 }
@@ -73,6 +69,9 @@ void print(const var &v) { out.print(v); }
 void print(std::initializer_list<var> vars) { out.print(vars); }
 void println(const var &v) { out.println(v); }
 void println(std::initializer_list<var> vars) { out.println(vars); }
+
+var readline() { return in.readline(); }
+var read(const var &v) { return in.read(v); }
 
 var file::readline() {
     var ret;
