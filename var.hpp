@@ -1,5 +1,6 @@
 #pragma once
 
+struct dict;
 struct var {
     enum {
         null,
@@ -82,5 +83,7 @@ struct var {
 
     explicit operator bool() const;
 
-    var operator[](const var &pos, const var& count = -1) const;
+    var operator[](const var &pos, const var &count = -1) const;
+
+    dict split(const var &sep = " ") const;
 };

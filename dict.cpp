@@ -35,7 +35,7 @@ dict::iter &dict::iter::operator++() {
     pos++;
     return *this;
 }
-const dict::kv dict::iter::operator*() const {
+dict::kv dict::iter::operator*() const {
     auto it = std::next(Map(*map).begin(), pos);
     return {it->first, it->second};
 }

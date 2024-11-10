@@ -21,7 +21,7 @@ struct dict {
         unsigned long pos = 0;
         const dict *map;
         iter &operator++();
-        const kv operator*() const;
+        kv operator*() const;
         bool operator==(const iter &) const = default;
         bool operator!=(const iter &) const = default;
     };

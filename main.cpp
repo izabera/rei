@@ -74,4 +74,13 @@ int main() {
     println(++empty == 1);
     println(empty++ == 1);
     println(empty == 2);
+
+    for (auto [k, v] : var("foo bar baz   bat").split())
+        println({k, v});
+    for (auto [k, v] : var("foo").split())
+        println({k, v});
+    for (auto [k, v] : var("|foo|bar|baz|").split("|"))
+        println({k, v});
+    for (auto [k, v] : var(123040506).split(0))
+        println({k, v});
 }

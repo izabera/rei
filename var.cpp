@@ -1,4 +1,5 @@
 #include "var.hpp"
+#include "dict.hpp"
 #include <cmath>
 #include <format>
 #include <string>
@@ -15,6 +16,12 @@ static std::string ToString(const var &v) {
         case var::string:  return Str(v);
     }
     return "unreachable";
+}
+static var FromString(const std::string &s) {
+    var ret;
+    ret.type = var::string;
+    ret.str = new std::string(s);
+    return ret;
 }
 
 var &var::operator=(var &&other) {
@@ -116,10 +123,7 @@ var var::operator+(const var &other) const {
         case string:  ;
     }
 
-    var ret;
-    ret.type = string;
-    ret.str = new std::string(ToString(*this) + ToString(other));
-    return ret;
+    return FromString(ToString(*this) + ToString(other));
 }
 var var::operator-(const var &other) const { return Double(*this) - Double(other); }
 var var::operator*(const var &other) const { return Double(*this) * Double(other); }
@@ -190,9 +194,25 @@ var var::operator[](const var &pos, const var &count) const {
         for (auto i = 0; i < len && off + i < int(self.size()); i++)
             result += self[off + i];
     }
-    var ret;
-    ret.type = string;
-    ret.str = new std::string(result);
 
-    return ret;
+    return FromString(result);
+}
+
+dict var::split(const var &s) const {
+    auto self = ToString(*this);
+    auto sep = ToString(s);
+
+    size_t prev_pos = 0, pos = 0, idx = 0;
+    dict d;
+
+    while ((pos = self.find(sep, pos)) != std::string::npos) {
+        auto substr = self.substr(prev_pos, pos - prev_pos);
+        d[idx++] = FromString(substr);
+        prev_pos = ++pos;
+    }
+
+    auto substr = self.substr(prev_pos, pos - prev_pos);
+    d[idx++] = FromString(substr);
+
+    return d;
 }
