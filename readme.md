@@ -1,4 +1,7 @@
-a silly c++23 thing to get variables that behave like in js
+jscpp (name subject to change)
+===
+
+a silly c++23 "dialect" to get variables that behave sorta like in js
 
 - variables can be strings, numbers, booleans, or nulls
 - dict is a map from var to var
@@ -10,17 +13,20 @@ advent of code and not wait 397h to compile each file
 
 
 example.cpp is a mostly complete example of how to use all the functionality in
-the library, and it builds in single-digit centiseconds on my machine
-(if you remove the -MMD)
+the library, and it compiles in single-digit centiseconds on my machine
+(if you remove the -MMD and the other flags (and also not link it))
+(use mold to link things faster)
 
 
 
-the aoc directory has some solutions for advent of code 2019
+the aoc directory has some solutions for advent of code 2019.
+the dialect/library is evolving with what i need to solve the problems
 
 
 
 slightly outdated log but the timings are not orders of magnitude off:
 
+```
 $ make
 clang++ -std=c++20   -c -o main.o main.cpp
 real	0:00.05	user	0	sys	0.01
@@ -49,3 +55,4 @@ real	0:00.07	user	0	sys	0.03
 clang++ -std=c++20    main.o libjs.a  -o main
 real	0:00.08	user	0	sys	0.05
 $
+```

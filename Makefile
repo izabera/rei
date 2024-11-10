@@ -5,6 +5,10 @@ ifdef DEBUG
 CXXFLAGS += -fsanitize=address,undefined
 endif
 
+ifneq (, $(shell command -v mold))
+LDFLAGS = -fuse-ld=mold
+endif
+
 ifndef NOTIME
 ifneq (, $(shell command -v time))
 export TIME = real\t%E\tuser\t%t\tsys\t%S
