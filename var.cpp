@@ -167,7 +167,7 @@ cmp(>=);
 cmp(==);
 cmp(!=);
 
-var var::operator!() const { return *this ? 1 : 0; }
+var var::operator!() const { return !bool(*this); }
 var var::operator&&(const var &other) const { return bool(*this) && bool(other); }
 var var::operator||(const var &other) const { return bool(*this) || bool(other); }
 
