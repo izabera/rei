@@ -1,6 +1,6 @@
 #include "dict.hpp"
-#include "var.hpp"
 #include "functional.hpp"
+#include "var.hpp"
 #include <map>
 
 // the default comparison in libstdc++'s std map doesn't call explicit operator bool :(

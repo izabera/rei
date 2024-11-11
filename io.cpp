@@ -1,6 +1,7 @@
 #include "io.hpp"
 #include "var.hpp"
 #include <cstdio>
+#include <cstdlib>
 #include <memory>
 #include <string>
 
@@ -26,7 +27,7 @@ file::~file() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
 
 file::file(const var &name, mode m) {
     var str = name + "";
-    std::string &strname = *static_cast<std::string *>(str.u.str);
+    std::string &strname = *reinterpret_cast<std::string *>(&str.u.buf);
 
     const char *fopenmode = m == r ? "r" : m == w ? "w" : "w+";
     auto ptr = fopen(strname.data(), fopenmode);
@@ -49,7 +50,7 @@ console cons;
 void file::print(const var &v) {
     auto file = Underlying(*this).get();
     auto var = v + "";
-    fprintf(file, "%s", static_cast<std::string *>(var.u.str)->data());
+    fprintf(file, "%s", reinterpret_cast<const std::string *>(&var.u.buf)->data());
 }
 void file::print(std::initializer_list<var> vars) {
     auto i = 0;
@@ -85,7 +86,7 @@ var file::readline() {
             line[--l] = 0;
 
         ret.type = var::string;
-        ret.u.str = new std::string(line, size);
+        new (ret.u.buf) std::string(line, size);
     }
 
     free(line);
@@ -112,7 +113,7 @@ var file::read(const var &len) {
     }
 
     ret.type = var::string;
-    ret.u.str = new std::string(tmp);
+    new (ret.u.buf) std::string(tmp);
 
     return ret;
 }

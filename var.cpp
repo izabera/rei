@@ -5,10 +5,18 @@
 #include <format>
 #include <string>
 
-#define Str(v) (*static_cast<std::string *>((v).u.str))
+template <typename t1, typename t2>
+using same_const_t = std::conditional_t<std::is_const_v<std::remove_reference_t<t1>>, const t2, t2>;
+
+#define Str(v) (*reinterpret_cast<same_const_t<decltype(v), std::string> *>(&(v).u.buf))
 #define Int(v) (int((+(v)).u.num))
 #define Long(v) (long((+(v)).u.num))
 #define Double(v) ((+(v)).u.num)
+
+// this is a bit of a hack because var.hpp can't include std::string
+// if the assert fails maybe manually change the buffer size idk
+static_assert(sizeof(std::string) <= sizeof(var::u));
+static_assert(alignof(std::string) <= alignof(decltype(var::u)));
 
 static std::string ToString(const var &v) {
     switch (v.type) {
@@ -22,22 +30,39 @@ static std::string ToString(const var &v) {
 static var FromString(const std::string &s) {
     var ret;
     ret.type = var::string;
-    ret.u.str = new std::string(s);
+    new (ret.u.buf) std::string(s);
     return ret;
 }
 
+// std::string in libstdc++ has a pointer to an internal buffer
 var &var::operator=(var &&other) {
     if (this != &other) {
-        std::swap(this->type, other.type);
-        std::swap(this->u.num, other.u.num);
+        // todo: abstract this away
+        ~var();
+        type = std::move(other.type);
+
+        switch (type) {
+            case null:    break;
+            case boolean: u.b = other.u.b; break;
+            case number:  u.num = other.u.num; break;
+            case string:  new (u.buf) std::string(std::move(Str(other))); break;
+        }
     }
     return *this;
 }
 var &var::operator=(const var &other) {
     if (this != &other) {
         var tmp{other};
-        std::swap(this->type, tmp.type);
-        std::swap(this->u.num, tmp.u.num);
+
+        ~var();
+        type = std::move(tmp.type);
+
+        switch (type) {
+            case null:    break;
+            case boolean: u.b = other.u.b; break;
+            case number:  u.num = other.u.num; break;
+            case string:  new (u.buf) std::string(std::move(Str(tmp))); break;
+        }
     }
     return *this;
 }
@@ -69,7 +94,7 @@ num_constructor(long double);
 
 var::var(const char *s) {
     type = string;
-    u.str = new std::string(s);
+    new (u.buf) std::string(s);
 }
 
 var::var(const var &other) {
@@ -78,17 +103,22 @@ var::var(const var &other) {
         case null:    break;
         case boolean: u.b = other.u.b; break;
         case number:  u.num = other.u.num; break;
-        case string:  u.str = new std::string(Str(other)); break;
+        case string:  new (u.buf) std::string(Str(other)); break;
     }
 }
 var::var(var &&other) {
-    std::swap(type, other.type);
-    std::swap(u.num, other.u.num);
+    type = std::move(other.type);
+    switch (type) {
+        case null:    break;
+        case boolean: u.b = other.u.b; break;
+        case number:  u.num = other.u.num; break;
+        case string:  new (u.buf) std::string(std::move(Str(other))); break;
+    }
 }
 
 var::~var() {
     if (type == string)
-        delete &Str(*this);
+        std::destroy_at(&(Str(*this)));
 }
 
 var var::operator+() const {

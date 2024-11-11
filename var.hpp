@@ -11,8 +11,8 @@ struct var {
 
     union {
         bool b;
-        double num = 0;
-        void *str;
+        double num;
+        char buf[32];
     } u;
 
     var() = default;
