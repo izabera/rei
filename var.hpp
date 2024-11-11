@@ -13,7 +13,7 @@ struct var {
         bool b;
         double num = 0;
         void *str;
-    };
+    } u;
 
     var() = default;
     var(var &&);

@@ -26,7 +26,7 @@ file::~file() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
 
 file::file(const var &name, mode m) {
     var str = name + "";
-    std::string &strname = *static_cast<std::string *>(str.str);
+    std::string &strname = *static_cast<std::string *>(str.u.str);
 
     const char *fopenmode = m == r ? "r" : m == w ? "w" : "w+";
     auto ptr = fopen(strname.data(), fopenmode);
@@ -49,7 +49,7 @@ console cons;
 void file::print(const var &v) {
     auto file = Underlying(*this).get();
     auto var = v + "";
-    fprintf(file, "%s", static_cast<std::string *>(var.str)->data());
+    fprintf(file, "%s", static_cast<std::string *>(var.u.str)->data());
 }
 void file::print(std::initializer_list<var> vars) {
     auto i = 0;
@@ -85,7 +85,7 @@ var file::readline() {
             line[--l] = 0;
 
         ret.type = var::string;
-        ret.str = new std::string(line, size);
+        ret.u.str = new std::string(line, size);
     }
 
     free(line);
@@ -96,7 +96,7 @@ var file::read(const var &len) {
     var ret;
     auto file = Underlying(*this).get();
 
-    auto remaining = len.type == var::null ? LONG_MAX : long((+len).num);
+    auto remaining = len.type == var::null ? LONG_MAX : long((+len).u.num);
     std::string tmp;
 
     constexpr long bufsize = 1024;
@@ -112,7 +112,7 @@ var file::read(const var &len) {
     }
 
     ret.type = var::string;
-    ret.str = new std::string(tmp);
+    ret.u.str = new std::string(tmp);
 
     return ret;
 }

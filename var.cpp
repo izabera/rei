@@ -5,16 +5,16 @@
 #include <format>
 #include <string>
 
-#define Str(v) (*static_cast<std::string *>((v).str))
-#define Int(v) (int((+(v)).num))
-#define Long(v) (long((+(v)).num))
-#define Double(v) ((+(v)).num)
+#define Str(v) (*static_cast<std::string *>((v).u.str))
+#define Int(v) (int((+(v)).u.num))
+#define Long(v) (long((+(v)).u.num))
+#define Double(v) ((+(v)).u.num)
 
 static std::string ToString(const var &v) {
     switch (v.type) {
         case var::null:    return "null";
-        case var::boolean: return v.b ? "true" : "false";
-        case var::number:  return std::format("{}", v.num);
+        case var::boolean: return v.u.b ? "true" : "false";
+        case var::number:  return std::format("{}", v.u.num);
         case var::string:  return Str(v);
     }
     return "unreachable";
@@ -22,14 +22,14 @@ static std::string ToString(const var &v) {
 static var FromString(const std::string &s) {
     var ret;
     ret.type = var::string;
-    ret.str = new std::string(s);
+    ret.u.str = new std::string(s);
     return ret;
 }
 
 var &var::operator=(var &&other) {
     if (this != &other) {
         std::swap(this->type, other.type);
-        std::swap(this->num, other.num);
+        std::swap(this->u.num, other.u.num);
     }
     return *this;
 }
@@ -37,20 +37,20 @@ var &var::operator=(const var &other) {
     if (this != &other) {
         var tmp{other};
         std::swap(this->type, tmp.type);
-        std::swap(this->num, tmp.num);
+        std::swap(this->u.num, tmp.u.num);
     }
     return *this;
 }
 
 var::var(bool val) {
     type = boolean;
-    b = val;
+    u.b = val;
 }
 
 #define num_constructor(t)                                                                         \
     var::var(t n) {                                                                                \
         type = number;                                                                             \
-        num = n;                                                                                   \
+        u.num = n;                                                                                 \
     }
 
 num_constructor(char);
@@ -69,21 +69,21 @@ num_constructor(long double);
 
 var::var(const char *s) {
     type = string;
-    str = new std::string(s);
+    u.str = new std::string(s);
 }
 
 var::var(const var &other) {
     type = other.type;
     switch (type) {
         case null:    break;
-        case boolean: b = other.b; break;
-        case number:  num = other.num; break;
-        case string:  str = new std::string(Str(other)); break;
+        case boolean: u.b = other.u.b; break;
+        case number:  u.num = other.u.num; break;
+        case string:  u.str = new std::string(Str(other)); break;
     }
 }
 var::var(var &&other) {
     std::swap(type, other.type);
-    std::swap(num, other.num);
+    std::swap(u.num, other.u.num);
 }
 
 var::~var() {
@@ -94,7 +94,7 @@ var::~var() {
 var var::operator+() const {
     switch (type) {
         case null:    return 0;
-        case boolean: return b ? 1 : 0;
+        case boolean: return u.b ? 1 : 0;
         case number:  return *this;
         case string:  return strtod(Str(*this).data(), nullptr);
     }
@@ -120,8 +120,8 @@ static auto common_type(const var &lhs, const var &rhs) { return std::max(lhs.ty
 var var::operator+(const var &other) const {
     switch (common_type(*this, other)) {
         case null:    return 0;
-        case boolean: return int(b) + int(other.b);
-        case number:  return num + other.num;
+        case boolean: return int(u.b) + int(other.u.b);
+        case number:  return u.num + other.u.num;
         case string:  ;
     }
 
@@ -153,8 +153,8 @@ bit(>>);
     var var::operator op(const var & other) const {                                                \
         switch (common_type(*this, other)) {                                                       \
             case null:    return true;                                                             \
-            case boolean: return b op other.b;                                                     \
-            case number:  return num op other.num;                                                 \
+            case boolean: return u.b op other.u.b;                                                 \
+            case number:  return u.num op other.u.num;                                             \
             case string:  return ToString(*this) op ToString(other);                                \
         }                                                                                          \
         return false; /* unreachable */                                                            \
@@ -174,8 +174,8 @@ var var::operator||(const var &other) const { return bool(*this) || bool(other);
 var::operator bool() const {
     switch (type) {
         case null:    return false;
-        case boolean: return b;
-        case number:  return num != 0;
+        case boolean: return u.b;
+        case number:  return u.num != 0;
         case string:  return Str(*this) != "";
     }
     return false; // unreachable
@@ -243,7 +243,7 @@ var var::strip(const var &chars) const {
 
     // strspn in reverse from the end
     size_t suffix = self.size();
-    for (; suffix > 0 && set[(unsigned char)self[suffix-1]]; suffix--)
+    for (; suffix > 0 && set[(unsigned char)self[suffix - 1]]; suffix--)
         ;
 
     return FromString(self.substr(prefix, suffix - prefix));
