@@ -5,8 +5,16 @@ ifdef DEBUG
 CXXFLAGS += -fsanitize=address,undefined
 endif
 
+ifdef OPT # lol not really
+CXXFLAGS += -O3 -flto -ffat-lto-objects
+LDFLAGS += -flto
+AR = gcc-ar
+else
+
 ifneq (, $(shell command -v mold))
 LDFLAGS = -fuse-ld=mold
+endif
+
 endif
 
 ifndef NOTIME
