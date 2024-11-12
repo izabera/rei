@@ -1,7 +1,7 @@
 rei
 ===
 
-a c++23 dialect for rapid prototyping with fast rebuilds
+rei is a c++23 dialect for rapid prototyping with fast rebuilds
 
 
 

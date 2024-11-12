@@ -6,8 +6,9 @@ reiobjects = dict.o functional.o io.o var.o
 
 
 ifdef LTO
-    CXXFLAGS += -flto=auto
-    LDFLAGS += -flto=auto
+    # you probably don't care about build times
+    CXXFLAGS += -flto=auto -O3 -march=native
+    LDFLAGS += -flto=auto -O3 -march=native
     ifeq (,$(findstring clang,$(CXX)))
         AR = gcc-ar
     else

@@ -86,7 +86,7 @@ var file::readline() {
             line[--l] = 0;
 
         ret.type = var::string;
-        new (ret.u.buf) std::string(line, size);
+        new (ret.u.buf) std::string(line, l);
     }
 
     free(line);

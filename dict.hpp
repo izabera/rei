@@ -4,12 +4,17 @@
 
 struct dict {
     void *impl;
+    enum {
+        contiguous,
+        sparse,
+    } type = contiguous;
 
     dict();
     dict(dict &&);
     dict(const dict &);
     dict &operator=(dict &&);
     dict &operator=(const dict &);
+    ~dict();
 
     var &operator[](const var &);
     bool contains(const var &) const;
