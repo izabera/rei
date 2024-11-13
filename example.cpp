@@ -103,4 +103,9 @@ int main() {
     println(var{"x"} + foo.strip(" ls") + "x");
     println(var{"x"} + foo.strip("wxzy") + "x");
     println(var{"x"} + var{"unlawful"}.strip({}) + "x");
+
+    var numbers = "0123456789";
+    println(numbers);
+    println(numbers[0,4] + var{"x"} * 6);
+    println(numbers * 3);
 }

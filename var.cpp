@@ -22,8 +22,14 @@ static std::string ToString(const var &v) {
     switch (v.type) {
         case var::null:    return "null";
         case var::boolean: return v.u.b ? "true" : "false";
-        case var::number:  return std::format("{}", v.u.num);
         case var::string:  return Str(v);
+        case var::number:
+            // this avoids printing 300000 as 3e+05 (or 300000.000000 if one used {:f})
+            // it's dumb but there is no good way in fmt/std::format to do automatic precision
+            // a custom formatter would really have to do the same thing
+            if (v.u.num == long(v.u.num))
+                return std::format("{}", long(v.u.num));
+            return std::format("{}", v.u.num);
     }
     return "unreachable";
 }
@@ -158,7 +164,48 @@ var var::operator+(const var &other) const {
     return FromString(ToString(*this) + ToString(other));
 }
 var var::operator-(const var &other) const { return Double(*this) - Double(other); }
-var var::operator*(const var &other) const { return Double(*this) * Double(other); }
+var var::operator*(const var &other) const {
+    /*
+     * null * x = null
+     * x * null = null
+     *
+     * true * x = x
+     * x * true = x
+     *
+     * false * x = null
+     * x * false = null
+     *
+     * str * num = num copies of str
+     * num * str = num copies of str
+     *
+     * num * num = normal mul
+     * str * str = +str * +str
+     */
+
+    const var *lhs, *rhs;
+    if (type == std::min(type, other.type)) {
+        lhs = this;
+        rhs = &other;
+    }
+    else {
+        lhs = &other;
+        rhs = this;
+    }
+
+    switch (lhs->type) {
+        case null:    return var{};
+        case boolean: return lhs->u.b ? *rhs : var{};
+        case string:  return Double(*lhs) * Double(*rhs);
+        case number:
+            if (rhs->type == number)
+                return lhs->u.num * rhs->u.num;
+            std::string s;
+            for (long l = 0; l < lhs->u.num; l++)
+                s += Str(*rhs);
+            return FromString(s);
+    }
+}
+
 var var::operator/(const var &other) const { return Double(*this) / Double(other); }
 var var::operator%(const var &other) const { return std::remainder(Double(*this), Double(other)); }
 

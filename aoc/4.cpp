@@ -3,22 +3,23 @@
 
 int main() {
     auto range = io::readline().split("-");
-    auto lo = range[0];
-    auto hi = range[1];
+    auto lo = +range[0];
+    auto hi = +range[1];
 
-    // dumbest possible way to solve this
     var part1 = 0, part2 = 0;
     for (; lo <= hi; lo++) {
         var last = "";
         var hasdouble = false;
-        var nondecreasing = true;
         var groupsok = false;
         var groupsize = 1;
 
-        for (auto [_, d] : lo.split("")) {
+        for (auto [pos, d] : lo.split("")) {
             if (last > d) {
-                nondecreasing = false;
-                break;
+                // the minimum next candidate is xxxlastlastlast
+                lo = lo[0, pos] + last * (var{6} - pos);
+                // decrement by 1 so the for can reincrement...
+                lo--;
+                goto next;
             }
             if (last == d) {
                 hasdouble = true;
@@ -31,13 +32,14 @@ int main() {
             }
             last = d;
         }
-        if (nondecreasing && hasdouble) {
+        if (hasdouble) {
             part1++;
             if (groupsize == 2)
                 groupsok = true;
             if (groupsok)
                 part2++;
         }
+    next:;
     }
     io::println({part1, part2});
 }
