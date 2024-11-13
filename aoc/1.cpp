@@ -11,5 +11,5 @@ int main() {
             fuel = (fuel / 3 | 0) - 2;
         }
     }
-    io::println({part1, part2});
+    io::print({part1, part2});
 }

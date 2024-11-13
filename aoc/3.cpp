@@ -67,5 +67,5 @@ int main() {
     lay(grid, wire1, 1);
     auto tuple = lay(grid, wire2, -1);
 
-    io::println({tuple["part1"], tuple["part2"]});
+    io::print({tuple["part1"], tuple["part2"]});
 }

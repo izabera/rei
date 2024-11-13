@@ -19,10 +19,8 @@ struct file {
 
     file(const var &name, mode = r);
 
-    void print(const var &);
-    void print(std::initializer_list<var>);
-    void println(const var &);
-    void println(std::initializer_list<var>);
+    void print(std::initializer_list<var>, const var& end = "\n");
+    void print(const var &fmt, std::initializer_list<var> = {}, const var &end = "\n");
 
     var read(const var &len = {});
     var readline();
@@ -32,10 +30,8 @@ extern file in;
 extern file out;
 extern file err;
 
-void print(const var &);
-void print(std::initializer_list<var>);
-void println(const var &);
-void println(std::initializer_list<var>);
+void print(std::initializer_list<var>, const var& end = "\n");
+void print(const var &fmt, std::initializer_list<var> = {}, const var &end = "\n");
 
 var read(const var &len = {});
 var readline();

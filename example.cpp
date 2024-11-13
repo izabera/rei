@@ -2,110 +2,117 @@
 #include "io.hpp"
 #include "var.hpp"
 
-using io::print, io::println;
+using io::print;
 
 int main() {
     var x = 3;
     var y = "meow";
     print(x);
-    print(x + "\n");
-    println({x, y});
+    print({x + "\n"}, var{});
 
+    print({x, y});
     y = 3;
     y += x;
-    print({x, y, "\n"});
+    print({x, y});
 
-    println("writing to file");
+    print("writing to file");
     {
         io::file f("file.tmp", io::w);
-        f.println("hello (from f)");
+        f.print("hello (from f)");
         auto copy = f;
-        copy.println("world (from copy)");
+        copy.print("world (from copy)");
         auto copy2 = f;
-        copy2.println("world (from copy2)");
+        copy2.print("world (from copy2)");
         auto moved = static_cast<io::file &&>(f);
-        moved.println("world (from moved)");
+        moved.print("world (from moved)");
     }
 
-    println("reading line by line");
+    print("reading line by line");
     {
         io::file f("file.tmp");
         for (var q = 0, line; (line = f.readline()); q++)
-            println({"line", q, line});
+            print({"line", q, line});
     }
-    println("reading 5 bytes");
-    println(io::file("file.tmp").read(5));
-    println("reading the full file");
-    print(io::file("file.tmp").read());
+    print("reading 5 bytes");
+    print(io::file("file.tmp").read(5));
+    print("reading the full file");
+    print({io::file("file.tmp").read()}, var{});
 
     y = "left";
     y += "right";
-    println(y);
+    print(y);
 
-    println(var{4} + 3);
-    println(var{"4"} + 3);
-    println(var{4} - 3);
-    println(var{"4"} - 3);
+    print(var{4} + 3);
+    print(var{"4"} + 3);
+    print(var{4} - 3);
+    print(var{"4"} - 3);
 
-    println("foo");
-    io::err.println({"writing", "to", "fd", 2});
+    print("foo");
+    io::err.print({"writing", "to", "fd", 2});
 
     for (var x = 0; x < 10; x++)
-        println(x);
+        print(x);
 
-    println(var{.2} + .1);
+    print(var{.2} + .1);
 
     dict d;
-    println(d.contains("2"));
+    print(d.contains("2"));
     d[2] = "asdf";
-    println(d[2]);
-    println(d.contains("2")); // 2 becomes "2" during lookup
-    println(d[2] == d["2"]);
-    println(d[3]);
+    print(d[2]);
+    print(d.contains("2")); // 2 becomes "2" during lookup
+    print(d[2] == d["2"]);
+    print(d[3]);
     d[4] = true;
     d["foo"] = "bar";
-    println(d[4]);
-    println(d["foo"]);
+    print(d[4]);
+    print(d["foo"]);
 
     var q;
     for (auto [k, v] : d)
-        println({q++, k, v});
+        print({q++, k, v});
 
     var letters = "abcdefg";
     var nums = 1234567890;
-    println(letters[2]);
-    println(letters[2, 4]);
-    println(nums[2]);
-    println(nums[2, 4]);
+    print(letters[2]);
+    print(letters[2, 4]);
+    print(nums[2]);
+    print(nums[2, 4]);
 
-    println(var{});
+    print(var{});
     var empty;
-    println(empty);
-    println(empty == var{});
-    println(empty == empty);
-    println(empty + "x" == "nullx");
-    println(empty + 1 == 1);
-    println(++empty == 1);
-    println(empty++ == 1);
-    println(empty == 2);
+    print(empty);
+    print(empty == var{});
+    print(empty == empty);
+    print(empty + "x" == "nullx");
+    print(empty + 1 == 1);
+    print(++empty == 1);
+    print(empty++ == 1);
+    print(empty == 2);
 
     for (auto [k, v] : var("foo bar baz   bat").split())
-        println({k, v});
+        print({k, v});
     for (auto [k, v] : var("foo").split())
-        println({k, v});
+        print({k, v});
     for (auto [k, v] : var("|foo|bar|baz|").split("|"))
-        println({k, v});
+        print({k, v});
     for (auto [k, v] : var(123040506).split(0))
-        println({k, v});
+        print({k, v});
 
     var foo = "    leading and trailing spaces     ";
-    println(var{"x"} + foo.strip() + "x");
-    println(var{"x"} + foo.strip(" ls") + "x");
-    println(var{"x"} + foo.strip("wxzy") + "x");
-    println(var{"x"} + var{"unlawful"}.strip({}) + "x");
+    print(var{"x"} + foo.strip() + "x");
+    print(var{"x"} + foo.strip(" ls") + "x");
+    print(var{"x"} + foo.strip("wxzy") + "x");
+    print(var{"x"} + var{"unlawful"}.strip({}) + "x");
 
     var numbers = "0123456789";
-    println(numbers);
-    println(numbers[0,4] + var{"x"} * 6);
-    println(numbers * 3);
+    print(numbers);
+    print(numbers[0,4] + var{"x"} * 6);
+    print(numbers * 3);
+
+    print("hello world");
+    print("hello world", {1, 2, 3});
+    print("hello world", {1, 2, 3}, "enddddd\n");
+    print("foo <{}> bar <{}> baz", {1, 2, 3, 4});
+    print("<{}> foo <{}> bar <{}> baz <{}>", {1, 2, 3, 4});
+    print("<{}> foo <{}> <{}> <{}> baz <{}>", {1, 2, 3, 4});
 }

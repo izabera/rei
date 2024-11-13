@@ -5,7 +5,12 @@
 #include <memory>
 #include <string>
 
+template <typename t1, typename t2>
+using same_const_t = std::conditional_t<std::is_const_v<std::remove_reference_t<t1>>, const t2, t2>;
+
+#define Str(v) (*reinterpret_cast<same_const_t<decltype(v), std::string> *>(&(v).u.buf))
 #define Underlying(f) (*static_cast<std::shared_ptr<FILE> *>((f).impl))
+
 namespace io {
 
 file::file(const file &other) { impl = new std::shared_ptr<FILE>(Underlying(other)); }
@@ -27,7 +32,7 @@ file::~file() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
 
 file::file(const var &name, mode m) {
     var str = name + "";
-    std::string &strname = *reinterpret_cast<std::string *>(&str.u.buf);
+    auto &strname = Str(str);
 
     const char *fopenmode = m == r ? "r" : m == w ? "w" : "w+";
     auto ptr = fopen(strname.data(), fopenmode);
@@ -47,29 +52,54 @@ file in;
 
 console cons;
 
-void file::print(const var &v) {
-    auto file = Underlying(*this).get();
+static void print_to_file(file &f, const var &v, const var &end = {}) {
+    auto file = Underlying(f).get();
     auto var = v + "";
-    fprintf(file, "%s", reinterpret_cast<const std::string *>(&var.u.buf)->data());
-}
-void file::print(std::initializer_list<var> vars) {
-    auto i = 0;
-    for (const auto &v : vars) {
-        if (i++)
-            print(" ");
-        print(v);
-    }
-}
-void file::println(const var &v) { print(v + "\n"); }
-void file::println(std::initializer_list<var> vars) {
-    print(vars);
-    print("\n");
+    if (end.type != var::null)
+        var += end;
+    fprintf(file, "%s", Str(var).data());
 }
 
-void print(const var &v) { out.print(v); }
-void print(std::initializer_list<var> vars) { out.print(vars); }
-void println(const var &v) { out.println(v); }
-void println(std::initializer_list<var> vars) { out.println(vars); }
+void file::print(std::initializer_list<var> vars, const var &end) {
+    size_t i = 0;
+    auto size = vars.size();
+    var sep = " ";
+    for (const auto &v : vars)
+        print_to_file(*this, v, ++i < size ? sep : end);
+}
+
+void file::print(const var &fmt, std::initializer_list<var> vars, const var &end) {
+    if (fmt.type != var::string)
+        // you probably don't want to do this but what do i know
+        return print_to_file(*this, fmt, end);
+
+    auto it = vars.begin();
+    auto varend = vars.end();
+
+    size_t lastpos = 0;
+    auto &str = Str(fmt);
+    size_t pos;
+    while ((pos = str.find("{}", lastpos)) != std::string::npos) {
+        var v;
+        v.type = var::string;
+        new (v.u.buf) std::string(str.substr(lastpos, pos - lastpos));
+        print_to_file(*this, v);
+        lastpos = pos + 2;
+        print_to_file(*this, it < varend ? *it++ : "");
+    }
+
+    var v;
+    v.type = var::string;
+    new (v.u.buf) std::string(str.substr(lastpos));
+
+    print_to_file(*this, v, end);
+}
+
+void print(const var &v, const var &end) { print_to_file(out, v, end); }
+void print(std::initializer_list<var> vars, const var &end) { out.print(vars, end); }
+void print(const var &fmt, std::initializer_list<var> vars, const var &end) {
+    out.print(fmt, vars, end);
+}
 
 var readline() { return in.readline(); }
 var read(const var &v) { return in.read(v); }
