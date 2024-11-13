@@ -88,3 +88,5 @@ struct var {
     dict split(const var &sep = " ") const;
     var strip(const var &chars = " \n") const;
 };
+
+static const var null{};

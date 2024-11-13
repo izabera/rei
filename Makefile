@@ -43,20 +43,24 @@ endif
 
 
 
-aocsrc = $(wildcard aoc/*.cpp)
-aocbin = $(aocsrc:.cpp=)
-
-# default target for now.  will probably move librei.a first at some point
-aoc/all: $(aocbin)
-
-all: example aoc/all
+# default target for now
+# will probably just leave librei.a and the tests at some point
+all: librei.a example testsuite aoc/all
 
 example: example.o librei.a
+	$(LINK.cpp) $^ $(LDLIBS) -o $@
+
+testsuite: testsuite.o librei.a
 	$(LINK.cpp) $^ $(LDLIBS) -o $@
 
 ARFLAGS = rcs
 librei.a: $(reiobjects)
 	$(AR) $(ARFLAGS) $@ $?
+
+aocsrc = $(wildcard aoc/*.cpp)
+aocbin = $(aocsrc:.cpp=)
+
+aoc/all: $(aocbin)
 
 aoc/%: aoc/%.cpp librei.a
 	$(LINK.cpp) $< $(LDLIBS) -o $@
@@ -64,7 +68,7 @@ $(aocbin): CXXFLAGS += -I.
 $(aocbin): LDLIBS += librei.a
 
 clean:
-	rm -rf *.[ado] aoc/*.[ado] $(aocbin) example file.tmp
+	rm -rf *.[ado] aoc/*.[ado] $(aocbin) example testsuite file.tmp
 
 .PHONY: clean all aoc/all
 

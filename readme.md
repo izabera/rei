@@ -38,11 +38,13 @@ interoperation with existing c++ code is trivial
 
 
 example.cpp is a mostly complete example of how to use all the functionality in
-the library, and it compiles in single-digit centiseconds on my machine
+the library, and it compiles in single-digit centiseconds on my machine.
+there's also a basic test suite in testsuite.cpp with a few unit tests
 
 
 
 the aoc directory has some solutions for advent of code 2019.
+this is proof that rei is usable for at least semi complex tasks.
 the dialect/library is evolving with what i need to solve the problems
 
 
@@ -51,4 +53,7 @@ the runtime is a bit slow for now but things are getting better
 
 
 
-run make to build librei.a and the advent of code solutions
+run make to build
+- librei.a
+- the test suite
+- the advent of code solutions

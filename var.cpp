@@ -155,9 +155,9 @@ static auto common_type(const var &lhs, const var &rhs) { return std::max(lhs.ty
 
 var var::operator+(const var &other) const {
     switch (common_type(*this, other)) {
-        case null:    return 0;
+        case null:    return {};
         case boolean: return int(u.b) + int(other.u.b);
-        case number:  return u.num + other.u.num;
+        case number:  return Double(*this) + Double(other);
         case string:  ;
     }
 
@@ -206,8 +206,18 @@ var var::operator*(const var &other) const {
     }
 }
 
-var var::operator/(const var &other) const { return Double(*this) / Double(other); }
-var var::operator%(const var &other) const { return std::remainder(Double(*this), Double(other)); }
+var var::operator/(const var &other) const {
+    auto divisor = Double(other);
+    if (divisor == 0)
+        return {};
+    return Double(*this) / divisor;
+}
+var var::operator%(const var &other) const {
+    auto divisor = Double(other);
+    if (divisor == 0)
+        return {};
+    return std::remainder(Double(*this), divisor);
+}
 
 var &var::operator+=(const var &other) { return *this = *this + other; }
 var &var::operator-=(const var &other) { return *this = *this - other; }
@@ -229,7 +239,7 @@ bit(>>);
 #define cmp(op)                                                                                    \
     var var::operator op(const var & other) const {                                                \
         switch (common_type(*this, other)) {                                                       \
-            case null:    return true;                                                             \
+            case null:    return 0 op 0;                                                           \
             case boolean: return u.b op other.u.b;                                                 \
             case number:  return u.num op other.u.num;                                             \
             case string:  return ToString(*this) op ToString(other);                                \
@@ -262,10 +272,10 @@ var var::operator[](const var &pos, const var &count) const {
     auto self = ToString(*this);
     std::string result;
 
-    auto off = Long(pos);
-    auto len = Long(count);
-
     auto selfsize = long(self.size());
+
+    auto off = Long(pos);
+    auto len = count.type == null ? selfsize : Long(count);
 
     if (len == -1) {
         if (off < selfsize)
