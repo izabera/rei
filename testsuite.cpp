@@ -142,4 +142,17 @@ int main(int argc, char **argv) {
         io::file("file.tmp", io::w).print("meow");
     }
     check_equal(io::file("file.tmp").readline(), "meow");
+
+    {
+        auto file = io::file("file.tmp", io::w);
+        file.print("foo <{}> bar <{}> baz", {1, 2, 3, 4});
+        file.print("<{}> foo <{}> bar <{}> baz <{}>", {1, 2, 3, 4});
+        file.print("<{}> foo <{}> <{}> <{}> baz <{}>", {1, 2, 3, 4});
+    }
+    {
+        auto file = io::file("file.tmp");
+        check_equal(file.readline(), "foo <1> bar <2> baz");
+        check_equal(file.readline(), "<1> foo <2> bar <3> baz <4>");
+        check_equal(file.readline(), "<1> foo <2> <3> <4> baz <null>");
+    }
 }

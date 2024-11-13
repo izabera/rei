@@ -85,7 +85,7 @@ void file::print(const var &fmt, std::initializer_list<var> vars, const var &end
         new (v.u.buf) std::string(str.substr(lastpos, pos - lastpos));
         print_to_file(*this, v);
         lastpos = pos + 2;
-        print_to_file(*this, it < varend ? *it++ : "");
+        print_to_file(*this, it < varend ? *it++ : null);
     }
 
     var v;
