@@ -89,24 +89,25 @@ int main() {
     print(empty++ == 1);
     print(empty == 2);
 
-    for (auto [k, v] : var("foo bar baz   bat").split())
+    for (auto [k, v] : "foo bar baz   bat"_v.split())
         print({k, v});
-    for (auto [k, v] : var("foo").split())
+    for (auto [k, v] : "foo"_v.split())
         print({k, v});
-    for (auto [k, v] : var("|foo|bar|baz|").split("|"))
+    for (auto [k, v] : "|foo|bar|baz|"_v.split("|"))
         print({k, v});
-    for (auto [k, v] : var(123040506).split(0))
+    // needs a space between _v and . because wtf parser
+    for (auto [k, v] : 123040506_v .split(0))
         print({k, v});
 
     var foo = "    leading and trailing spaces     ";
-    print(var{"x"} + foo.strip() + "x");
-    print(var{"x"} + foo.strip(" ls") + "x");
-    print(var{"x"} + foo.strip("wxzy") + "x");
-    print(var{"x"} + var{"unlawful"}.strip({}) + "x");
+    print("x" + foo.strip() + "x");
+    print("x" + foo.strip(" ls") + "x");
+    print("x" + foo.strip("wxzy") + "x");
+    print("x" + "unlawful"_v.strip({}) + "x");
 
     var numbers = "0123456789";
     print(numbers);
-    print(numbers[0,4] + var{"x"} * 6);
+    print(numbers[0,4] + "x"_v * 6);
     print(numbers * 3);
 
     print("hello world");

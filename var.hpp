@@ -38,48 +38,23 @@ struct var {
     var(const char *);
     ~var();
 
-    var operator+() const;
-    var operator-() const;
-
     var &operator++();
     var &operator--();
     var operator++(int);
     var operator--(int);
 
-    var operator+(const var &) const;
-    var operator-(const var &) const;
-    var operator*(const var &) const;
-    var operator/(const var &) const;
-    var operator%(const var &) const;
     var &operator+=(const var &);
     var &operator-=(const var &);
     var &operator*=(const var &);
     var &operator/=(const var &);
     var &operator%=(const var &);
 
-    var operator~() const;
-    var operator&(const var &) const;
-    var operator|(const var &) const;
-    var operator^(const var &) const;
     var &operator&=(const var &);
     var &operator|=(const var &);
     var &operator^=(const var &);
 
-    var operator<<(const var &) const;
-    var operator>>(const var &) const;
     var &operator<<=(const var &);
     var &operator>>=(const var &);
-
-    var operator<(const var &) const;
-    var operator>(const var &) const;
-    var operator<=(const var &) const;
-    var operator>=(const var &) const;
-    var operator==(const var &) const;
-    var operator!=(const var &) const;
-
-    var operator!() const;
-    var operator&&(const var &) const;
-    var operator||(const var &) const;
 
     explicit operator bool() const;
 
@@ -90,3 +65,29 @@ struct var {
 };
 
 static const var null{};
+var operator+(const var &v);
+var operator-(const var &v);
+var operator+(const var &lhs, const var &rhs);
+var operator-(const var &lhs, const var &rhs);
+var operator*(const var &lhs, const var &rhs);
+var operator/(const var &lhs, const var &rhs);
+var operator%(const var &lhs, const var &rhs);
+var operator~(const var &v);
+var operator&(const var &lhs, const var &rhs);
+var operator|(const var &lhs, const var &rhs);
+var operator^(const var &lhs, const var &rhs);
+var operator<<(const var &lhs, const var &rhs);
+var operator>>(const var &lhs, const var &rhs);
+var operator<(const var &lhs, const var &rhs);
+var operator>(const var &lhs, const var &rhs);
+var operator<=(const var &lhs, const var &rhs);
+var operator>=(const var &lhs, const var &rhs);
+var operator==(const var &lhs, const var &rhs);
+var operator!=(const var &lhs, const var &rhs);
+var operator!(const var &v);
+var operator&&(const var &lhs, const var &rhs);
+var operator||(const var &lhs, const var &rhs);
+
+var operator""_v(const char *v, unsigned long);
+var operator""_v(unsigned long long int v);
+var operator""_v(long double v);

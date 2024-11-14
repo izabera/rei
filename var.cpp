@@ -127,16 +127,16 @@ var::~var() {
         std::destroy_at(&(Str(*this)));
 }
 
-var var::operator+() const {
-    switch (type) {
-        case null:    return 0;
-        case boolean: return u.b ? 1 : 0;
-        case number:  return *this;
-        case string:  return strtod(Str(*this).data(), nullptr);
+var operator+(const var &v) {
+    switch (v.type) {
+        case var::null:    return 0;
+        case var::boolean: return v.u.b ? 1 : 0;
+        case var::number:  return v;
+        case var::string:  return strtod(Str(v).data(), nullptr);
     }
     return 0; // unreachable
 }
-var var::operator-() const { return -Double(*this); }
+var operator-(const var &v) { return -Double(v); }
 
 var &var::operator++() { return *this = Double(*this) + 1; }
 var &var::operator--() { return *this = Double(*this) - 1; }
@@ -153,18 +153,18 @@ var var::operator--(int) {
 
 static auto common_type(const var &lhs, const var &rhs) { return std::max(lhs.type, rhs.type); }
 
-var var::operator+(const var &other) const {
-    switch (common_type(*this, other)) {
-        case null:    return {};
-        case boolean: return int(u.b) + int(other.u.b);
-        case number:  return Double(*this) + Double(other);
-        case string:  ;
+var operator+(const var &lhs, const var &rhs) {
+    switch (common_type(lhs, rhs)) {
+        case var::null:    return {};
+        case var::boolean: return int(lhs.u.b) + int(rhs.u.b);
+        case var::number:  return Double(lhs) + Double(rhs);
+        case var::string:  ;
     }
 
-    return FromString(ToString(*this) + ToString(other));
+    return FromString(ToString(lhs) + ToString(rhs));
 }
-var var::operator-(const var &other) const { return Double(*this) - Double(other); }
-var var::operator*(const var &other) const {
+var operator-(const var &lhs, const var &rhs) { return Double(lhs) - Double(rhs); }
+var operator*(const var &lhs, const var &rhs) {
     /*
      * null * x = null
      * x * null = null
@@ -182,41 +182,41 @@ var var::operator*(const var &other) const {
      * str * str = +str * +str
      */
 
-    const var *lhs, *rhs;
-    if (type == std::min(type, other.type)) {
-        lhs = this;
-        rhs = &other;
+    const var *lhsp, *rhsp;
+    if (lhs.type == std::min(lhs.type, rhs.type)) {
+        lhsp = &lhs;
+        rhsp = &rhs;
     }
     else {
-        lhs = &other;
-        rhs = this;
+        lhsp = &rhs;
+        rhsp = &lhs;
     }
 
-    switch (lhs->type) {
-        case null:    return var{};
-        case boolean: return lhs->u.b ? *rhs : var{};
-        case string:  return Double(*lhs) * Double(*rhs);
-        case number:
-            if (rhs->type == number)
-                return lhs->u.num * rhs->u.num;
+    switch (lhsp->type) {
+        case var::null:    return var{};
+        case var::boolean: return lhsp->u.b ? *rhsp : var{};
+        case var::string:  return Double(*lhsp) * Double(*rhsp);
+        case var::number:
+            if (rhsp->type == var::number)
+                return lhsp->u.num * rhsp->u.num;
             std::string s;
-            for (long l = 0; l < lhs->u.num; l++)
-                s += Str(*rhs);
+            for (long l = 0; l < lhsp->u.num; l++)
+                s += Str(*rhsp);
             return FromString(s);
     }
 }
 
-var var::operator/(const var &other) const {
-    auto divisor = Double(other);
+var operator/(const var &lhs, const var &rhs) {
+    auto divisor = Double(rhs);
     if (divisor == 0)
         return {};
-    return Double(*this) / divisor;
+    return Double(lhs) / divisor;
 }
-var var::operator%(const var &other) const {
-    auto divisor = Double(other);
+var operator%(const var &lhs, const var &rhs) {
+    auto divisor = Double(rhs);
     if (divisor == 0)
         return {};
-    return std::remainder(Double(*this), divisor);
+    return std::remainder(Double(lhs), divisor);
 }
 
 var &var::operator+=(const var &other) { return *this = *this + other; }
@@ -226,10 +226,10 @@ var &var::operator/=(const var &other) { return *this = *this / other; }
 var &var::operator%=(const var &other) { return *this = *this % other; }
 
 #define bit(op)                                                                                    \
-    var var::operator op(const var & other) const { return Long(*this) op Long(other); }           \
-    var &var::operator op##=(const var & other) { return *this = *this op other; }
+    var &var::operator op##=(const var & other) { return *this = *this op Long(other); }           \
+    var operator op(const var &lhs, const var &rhs) { return Long(lhs) op Long(rhs); }
 
-var var::operator~() const { return ~Int(*this); }
+var operator~(const var &v) { return ~Int(v); }
 bit(&);
 bit(|);
 bit(^);
@@ -237,12 +237,12 @@ bit(<<);
 bit(>>);
 
 #define cmp(op)                                                                                    \
-    var var::operator op(const var & other) const {                                                \
-        switch (common_type(*this, other)) {                                                       \
-            case null:    return 0 op 0;                                                           \
-            case boolean: return u.b op other.u.b;                                                 \
-            case number:  return u.num op other.u.num;                                             \
-            case string:  return ToString(*this) op ToString(other);                                \
+    var operator op(const var &lhs, const var &rhs) {                                              \
+        switch (common_type(lhs, rhs)) {                                                           \
+            case var::null:    return 0 op 0;                                                      \
+            case var::boolean: return lhs.u.b op rhs.u.b;                                          \
+            case var::number:  return lhs.u.num op rhs.u.num;                                      \
+            case var::string:  return ToString(lhs) op ToString(rhs);                               \
         }                                                                                          \
         return false; /* unreachable */                                                            \
     }
@@ -254,9 +254,9 @@ cmp(>=);
 cmp(==);
 cmp(!=);
 
-var var::operator!() const { return !bool(*this); }
-var var::operator&&(const var &other) const { return bool(*this) && bool(other); }
-var var::operator||(const var &other) const { return bool(*this) || bool(other); }
+var operator!(const var &v) { return !bool(v); }
+var operator&&(const var &lhs, const var &rhs) { return bool(lhs) && bool(rhs); }
+var operator||(const var &lhs, const var &rhs) { return bool(lhs) || bool(rhs); }
 
 var::operator bool() const {
     switch (type) {
@@ -335,3 +335,7 @@ var var::strip(const var &chars) const {
 
     return FromString(self.substr(prefix, suffix - prefix));
 }
+
+var operator""_v(const char *v, unsigned long) { return v; }
+var operator""_v(unsigned long long int v) { return v; }
+var operator""_v(long double v) { return v; }

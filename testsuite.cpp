@@ -41,10 +41,6 @@ struct test {
     }
 };
 
-var operator""_v(const char *v, size_t) { return v; }
-var operator""_v(unsigned long long int v) { return v; }
-var operator""_v(long double v) { return v; }
-
 int main(int argc, char **argv) {
     test t;
     if (argc > 1) {
@@ -79,16 +75,16 @@ int main(int argc, char **argv) {
     check_equal(null / 7, null);
     check_equal(null % 7, null);
 
-    check_equal(7_v + null, 7);
-    check_equal(7_v - null, 7);
-    check_equal(7_v * null, null);
-    check_equal(7_v / null, null);
-    check_equal(7_v % null, null);
+    check_equal(7 + null, 7);
+    check_equal(7 - null, 7);
+    check_equal(7 * null, null);
+    check_equal(7 / null, null);
+    check_equal(7 % null, null);
 
-    check_equal(7_v < null, false);
-    check_equal(7_v > null, true);
-    check_equal(7_v <= null, false);
-    check_equal(7_v >= null, true);
+    check_equal(7 < null, false);
+    check_equal(7 > null, true);
+    check_equal(7 <= null, false);
+    check_equal(7 >= null, true);
 
     check_equal(7_v + 0, 7);
     check_equal(7_v - 0, 7);
@@ -127,8 +123,8 @@ int main(int argc, char **argv) {
     check_equal(++3_v, 4);
     check_equal(++"3"_v, 4);
     // str * n = n copies of the string, kinda like in python
-    check_equal("meow"_v * 3, "meowmeowmeow");
-    check_equal(3_v * "meow", "meowmeowmeow");
+    check_equal("meow"_v * 3_v, "meowmeowmeow");
+    check_equal(3_v * "meow"_v, "meowmeowmeow");
 
     auto nums = "0123456789"_v;
     check_equal(nums[3], 3);

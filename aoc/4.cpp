@@ -16,7 +16,7 @@ int main() {
         for (auto [pos, d] : lo.split("")) {
             if (last > d) {
                 // the minimum next candidate is xxxlastlastlast
-                lo = lo[0, pos] + last * (var{6} - pos);
+                lo = lo[0, pos] + last * (6 - pos);
                 // decrement by 1 so the for can reincrement...
                 lo--;
                 goto next;
