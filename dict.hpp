@@ -19,6 +19,7 @@ struct dict {
     var &operator[](const var &);
     bool contains(const var &) const;
     var size() const;
+    void resize(const var &size);
 
     struct kv {
         var key;

@@ -1,3 +1,4 @@
+#include "dict.hpp"
 #include "io.hpp"
 #include "var.hpp"
 #include <print>
@@ -155,4 +156,6 @@ int main(int argc, char **argv) {
         check_equal(file.readline(), "<1> foo <2> bar <3> baz <4>");
         check_equal(file.readline(), "<1> foo <2> <3> <4> baz <null>");
     }
+
+    check_equal("123 456"_v.split()[1], 456);
 }

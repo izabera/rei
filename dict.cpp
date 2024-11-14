@@ -100,6 +100,11 @@ dict::kv dict::iter::operator*() const {
     return {it->first, it->second};
 }
 var dict::size() const { return type == contiguous ? Vec(*this).size() : Map(*this).size(); }
+void dict::resize(const var &size) {
+    if (type == contiguous)
+        Vec(*this).resize(long((+size).u.num));
+    // does it even make sense otherwise?  idk
+}
 
 dict dict::map(fn::unary f) const {
     dict ret;
