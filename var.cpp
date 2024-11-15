@@ -336,6 +336,13 @@ var var::strip(const var &chars) const {
     return FromString(self.substr(prefix, suffix - prefix));
 }
 
+var var::len() const {
+    if (type == string)
+        return Str(*this).size();
+    auto v = *this + "";
+    return Str(v).size();
+}
+
 var operator""_v(const char *v, unsigned long) { return v; }
 var operator""_v(unsigned long long int v) { return v; }
 var operator""_v(long double v) { return v; }

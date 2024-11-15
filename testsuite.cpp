@@ -154,4 +154,26 @@ int main(int argc, char **argv) {
     }
 
     check_equal("123 456"_v.split()[1], 456);
+
+    {
+        auto file = io::file("file.tmp");
+        check_equal(bool{file}, true);
+        auto bytes = file.read(3);
+        check_equal(bytes, "foo");
+        auto lines = file.readlines();
+        check_equal(lines.size(), 3);
+        check_equal(bool{file}, false);
+        file = io::file("/this/file/does/not/exist", io::w);
+        check_equal(bool{file}, false);
+    }
+
+#if 0
+    // test that leaksan is working
+    new int;
+#if 0
+    // test that if we steal ownership of stderr, it's closed at the end of main
+    // (so leaksan can't print a report)
+    auto f = std::move(io::err);
+#endif
+#endif
 }

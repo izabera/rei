@@ -3,6 +3,7 @@
 #include "var.hpp"
 #include <initializer_list>
 
+struct dict;
 namespace io {
 
 enum mode { r, w, rw };
@@ -24,6 +25,9 @@ struct file {
 
     var read(const var &len = {});
     var readline();
+    dict readlines();
+
+    operator bool() const;
 };
 
 extern file in;
@@ -35,4 +39,5 @@ void print(const var &fmt, std::initializer_list<var> = {}, const var &end = "\n
 
 var read(const var &len = {});
 var readline();
+dict readlines();
 } // namespace io

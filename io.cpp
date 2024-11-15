@@ -1,4 +1,5 @@
 #include "io.hpp"
+#include "dict.hpp"
 #include "var.hpp"
 #include <cstdio>
 #include <cstdlib>
@@ -14,17 +15,17 @@ using same_const_t = std::conditional_t<std::is_const_v<std::remove_reference_t<
 namespace io {
 
 file::file(const file &other) { impl = new std::shared_ptr<FILE>(Underlying(other)); }
-file::file(file &&other) { std::swap(this->impl, other.impl); }
+file::file(file &&other) { std::swap(impl, other.impl); }
 file &file::operator=(const file &other) {
     if (this != &other) {
         file tmp{other};
-        std::swap(this->impl, tmp.impl);
+        std::swap(impl, tmp.impl);
     }
     return *this;
 }
 file &file::operator=(file &&other) {
     if (this != &other)
-        std::swap(this->impl, other.impl);
+        std::swap(impl, other.impl);
     return *this;
 }
 
@@ -36,16 +37,45 @@ file::file(const var &name, mode m) {
 
     const char *fopenmode = m == r ? "r" : m == w ? "w" : "w+";
     auto ptr = fopen(strname.data(), fopenmode);
-    impl = new std::shared_ptr<FILE>(ptr, fclose);
+    if (ptr)
+        impl = new std::shared_ptr<FILE>(ptr, fclose);
 }
+
+file::operator bool() const {
+    if (impl) {
+        auto ptr = static_cast<std::shared_ptr<FILE> *>(impl);
+        return !feof(ptr->get()) && !ferror(ptr->get());
+    }
+    return false;
+}
+
+namespace {
+// prevents stdin/stdout/stderr from being closed at the end if they've not been moved-from
+// this is especially annoying for stderr if you're using sanitizers
+struct maybefclose {
+    void operator()(FILE *p) const {
+        if (close)
+            fclose(p);
+    }
+    bool close = true;
+};
 
 struct console {
     console() {
-        in.impl = new std::shared_ptr<FILE>(stdin, fclose);
-        out.impl = new std::shared_ptr<FILE>(stdout, fclose);
-        err.impl = new std::shared_ptr<FILE>(stderr, fclose);
+        in.impl = new std::shared_ptr<FILE>(stdin, maybefclose());
+        out.impl = new std::shared_ptr<FILE>(stdout, maybefclose());
+        err.impl = new std::shared_ptr<FILE>(stderr, maybefclose());
+    }
+    ~console() {
+        for (auto *instance : {&in, &out, &err}) {
+            if (instance->impl) {
+                auto f = *static_cast<std::shared_ptr<FILE> *>(instance->impl);
+                std::get_deleter<maybefclose>(f)->close = false;
+            }
+        }
     }
 };
+} // namespace
 file err;
 file out;
 file in;
@@ -102,6 +132,7 @@ void print(const var &fmt, std::initializer_list<var> vars, const var &end) {
 }
 
 var readline() { return in.readline(); }
+dict readlines() { return in.readlines(); }
 var read(const var &v) { return in.read(v); }
 
 var file::readline() {
@@ -121,6 +152,18 @@ var file::readline() {
 
     free(line);
     return ret;
+}
+dict file::readlines() {
+    dict d;
+    int i = 0;
+    while (1) {
+        auto tmp = readline();
+        if (tmp)
+            d[i++] = tmp;
+        else
+            break;
+    }
+    return d;
 }
 
 var file::read(const var &len) {
