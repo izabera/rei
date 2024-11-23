@@ -1,7 +1,7 @@
 CXX = clang++
 CXXFLAGS = -std=c++23 -MMD -Wall -Wextra -ggdb3
 
-reiobjects = dict.o functional.o io.o var.o
+reiobjects = build/dict.o build/functional.o build/io.o build/var.o
 
 
 
@@ -42,34 +42,41 @@ else
 endif
 
 
+VPATH = src
 
 # default target for now
 # will probably just leave librei.a and the tests at some point
-all: librei.a example testsuite aoc/all
+all: build/librei.a build/example build/testsuite build/aoc/all
 
-example: example.o librei.a
-	$(LINK.cpp) $^ $(LDLIBS) -o $@
+build build/aoc:
+	mkdir -p $@
 
-testsuite: testsuite.o librei.a
-	$(LINK.cpp) $^ $(LDLIBS) -o $@
+build/%: CXXFLAGS += -Iinclude
+build/%: LDLIBS += -Lbuild -lrei
+build/%.o: %.cpp | build
+	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
+
+build/example: example.cpp build/librei.a | build
+	$(LINK.cpp) $< $(LDLIBS) -o $@
+
+build/testsuite: testsuite.cpp build/librei.a | build
+	$(LINK.cpp) $< $(LDLIBS) -o $@
 
 ARFLAGS = rcs
-librei.a: $(reiobjects)
+build/librei.a: $(reiobjects) | build
 	$(AR) $(ARFLAGS) $@ $?
 
 aocsrc = $(wildcard aoc/*.cpp)
-aocbin = $(aocsrc:.cpp=)
+aocbin = $(addprefix build/,$(aocsrc:.cpp=))
 
-aoc/all: $(aocbin)
-
-aoc/%: aoc/%.cpp librei.a
+build/aoc/all: $(aocbin)
+build/aoc/%: aoc/%.cpp build/librei.a | build/aoc
 	$(LINK.cpp) $< $(LDLIBS) -o $@
-$(aocbin): CXXFLAGS += -I.
-$(aocbin): LDLIBS += librei.a
 
 clean:
-	rm -rf *.[ado] aoc/*.[ado] $(aocbin) example testsuite file.tmp
+	rm -rf file.tmp build
 
-.PHONY: clean all aoc/all
+.PHONY: clean all build/aoc/all
 
--include *.d
+dotd = $(wildcard build/*.d) $(wildcard build/aoc/*.d)
+-include $(dotd)
