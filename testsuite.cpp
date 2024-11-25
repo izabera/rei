@@ -135,9 +135,7 @@ int main(int argc, char **argv) {
     check_equal("   foobar    "_v.strip(), "foobar");
     check_equal("foobar"_v.strip("fro"), "ba");
 
-    {
-        io::file("file.tmp", io::w).print("meow");
-    }
+    io::file("file.tmp", io::w).print("meow");
     check_equal(io::file("file.tmp").readline(), "meow");
 
     {
@@ -145,9 +143,7 @@ int main(int argc, char **argv) {
         file.print("foo <{}> bar <{}> baz", {1, 2, 3, 4});
         file.print("<{}> foo <{}> bar <{}> baz <{}>", {1, 2, 3, 4});
         file.print("<{}> foo <{}> <{}> <{}> baz <{}>", {1, 2, 3, 4});
-    }
-    {
-        auto file = io::file("file.tmp");
+        file = io::file("file.tmp");
         check_equal(file.readline(), "foo <1> bar <2> baz");
         check_equal(file.readline(), "<1> foo <2> bar <3> baz <4>");
         check_equal(file.readline(), "<1> foo <2> <3> <4> baz <null>");
@@ -176,4 +172,13 @@ int main(int argc, char **argv) {
     auto f = std::move(io::err);
 #endif
 #endif
+
+    {
+        auto file = io::file("file.tmp", io::w);
+        file.print("foo\0bar"_v);
+        file = io::file("file.tmp");
+        auto bytes = file.readline();
+        check_equal(bytes, "foo\0bar"_v);
+        check_equal(bytes.len(), 7);
+    }
 }

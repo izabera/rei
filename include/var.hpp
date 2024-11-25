@@ -36,6 +36,7 @@ struct var {
     var(double);
     var(long double);
     var(const char *);
+    var(const char *, unsigned long);
     ~var();
 
     var &operator++();

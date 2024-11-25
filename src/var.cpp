@@ -102,6 +102,10 @@ var::var(const char *s) {
     type = string;
     new (u.buf) std::string(s);
 }
+var::var(const char *s, unsigned long len) {
+    type = string;
+    new (u.buf) std::string(s, len);
+}
 
 var::var(const var &other) {
     type = other.type;
@@ -343,6 +347,6 @@ var var::len() const {
     return Str(v).size();
 }
 
-var operator""_v(const char *v, unsigned long) { return v; }
+var operator""_v(const char *v, unsigned long l) { return {v, l}; }
 var operator""_v(unsigned long long int v) { return v; }
 var operator""_v(long double v) { return v; }

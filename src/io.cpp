@@ -87,7 +87,8 @@ static void print_to_file(file &f, const var &v, const var &end = {}) {
     auto var = v + "";
     if (end.type != var::null)
         var += end;
-    fprintf(file, "%s", Str(var).data());
+    auto &str = Str(var);
+    fwrite(str.data(), 1, str.size(), file);
 }
 
 void file::print(std::initializer_list<var> vars, const var &end) {
