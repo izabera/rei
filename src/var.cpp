@@ -44,7 +44,8 @@ static var FromString(const std::string &s) {
 var &var::operator=(var &&other) {
     if (this != &other) {
         // todo: abstract this away
-        ~var();
+        if (type == string)
+            std::destroy_at(&Str(*this));
         type = std::move(other.type);
 
         switch (type) {
@@ -60,7 +61,8 @@ var &var::operator=(const var &other) {
     if (this != &other) {
         var tmp{other};
 
-        ~var();
+        if (type == string)
+            std::destroy_at(&(Str(*this)));
         type = std::move(tmp.type);
 
         switch (type) {

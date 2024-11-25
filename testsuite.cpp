@@ -181,4 +181,16 @@ int main(int argc, char **argv) {
         check_equal(bytes, "foo\0bar"_v);
         check_equal(bytes.len(), 7);
     }
+
+    {
+        var x = "a very very long string ";
+        x += "with lots of boring political commentary ";
+        x += "and not nearly enough cats";
+        var y = x;
+        x = y;
+        x = 10;
+        x = y;
+        y = {};
+        x = y;
+    }
 }
