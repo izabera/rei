@@ -220,7 +220,7 @@ var operator%(const var &lhs, const var &rhs) {
     auto divisor = Double(rhs);
     if (divisor == 0)
         return {};
-    return std::remainder(Double(lhs), divisor);
+    return std::fmod(Double(lhs), divisor);
 }
 
 var &var::operator+=(const var &other) { return *this = *this + other; }
