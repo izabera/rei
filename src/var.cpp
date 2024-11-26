@@ -1,44 +1,14 @@
 #include "var.hpp"
 #include "dict.hpp"
+#include "internal.hpp"
 #include <cmath>
 #include <cstring>
-#include <format>
 #include <string>
-
-template <typename t1, typename t2>
-using same_const_t = std::conditional_t<std::is_const_v<std::remove_reference_t<t1>>, const t2, t2>;
-
-#define Str(v) (*reinterpret_cast<same_const_t<decltype(v), std::string> *>(&(v).u.buf))
-#define Int(v) (int((+(v)).u.num))
-#define Long(v) (long((+(v)).u.num))
-#define Double(v) ((+(v)).u.num)
 
 // this is a bit of a hack because var.hpp can't include std::string
 // if the assert fails maybe manually change the buffer size idk
 static_assert(sizeof(std::string) <= sizeof(var::u));
 static_assert(alignof(std::string) <= alignof(decltype(var::u)));
-
-static std::string ToString(const var &v) {
-    switch (v.type) {
-        case var::null:    return "null";
-        case var::boolean: return v.u.b ? "true" : "false";
-        case var::string:  return Str(v);
-        case var::number:
-            // this avoids printing 300000 as 3e+05 (or 300000.000000 if one used {:f})
-            // it's dumb but there is no good way in fmt/std::format to do automatic precision
-            // a custom formatter would really have to do the same thing
-            if (v.u.num == long(v.u.num))
-                return std::format("{}", long(v.u.num));
-            return std::format("{}", v.u.num);
-    }
-    return "unreachable";
-}
-static var FromString(const std::string &s) {
-    var ret;
-    ret.type = var::string;
-    new (ret.u.buf) std::string(s);
-    return ret;
-}
 
 // std::string in libstdc++ has a pointer to an internal buffer
 var &var::operator=(var &&other) {
@@ -77,12 +47,12 @@ var &var::operator=(const var &other) {
 
 var::var(bool val) {
     type = boolean;
-    u.b = val;
+    u.b  = val;
 }
 
 #define num_constructor(t)                                                                         \
     var::var(t n) {                                                                                \
-        type = number;                                                                             \
+        type  = number;                                                                            \
         u.num = n;                                                                                 \
     }
 
@@ -297,7 +267,7 @@ var var::operator[](const var &pos, const var &count) const {
 
 dict var::split(const var &s) const {
     auto self = ToString(*this);
-    auto sep = ToString(s);
+    auto sep  = ToString(s);
 
     dict d;
 
@@ -306,12 +276,12 @@ dict var::split(const var &s) const {
         size_t prev_pos = 0, pos = 0;
         while ((pos = self.find(sep, pos)) != std::string::npos) {
             auto substr = self.substr(prev_pos, pos - prev_pos);
-            d[idx++] = FromString(substr);
-            prev_pos = ++pos;
+            d[idx++]    = FromString(substr);
+            prev_pos    = ++pos;
         }
 
         auto substr = self.substr(prev_pos, pos - prev_pos);
-        d[idx++] = FromString(substr);
+        d[idx++]    = FromString(substr);
     }
     else {
         for (auto c : self)
@@ -322,7 +292,7 @@ dict var::split(const var &s) const {
 }
 
 var var::strip(const var &chars) const {
-    auto self = ToString(*this);
+    auto self     = ToString(*this);
     auto stripset = ToString(chars);
 
     // basically what strspn does, but not limited to c strings

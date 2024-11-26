@@ -1,15 +1,12 @@
 #include "io.hpp"
 #include "dict.hpp"
+#include "internal.hpp"
 #include "var.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <memory>
 #include <string>
 
-template <typename t1, typename t2>
-using same_const_t = std::conditional_t<std::is_const_v<std::remove_reference_t<t1>>, const t2, t2>;
-
-#define Str(v) (*reinterpret_cast<same_const_t<decltype(v), std::string> *>(&(v).u.buf))
 #define Underlying(f) (*static_cast<std::shared_ptr<FILE> *>((f).impl))
 
 namespace io {
@@ -33,10 +30,10 @@ file::~file() { delete static_cast<std::shared_ptr<FILE> *>(impl); }
 
 file::file(const var &name, mode m) {
     var str = name + "";
-    auto &strname = Str(str);
 
     const char *fopenmode = m == r ? "r" : m == w ? "w" : "w+";
-    auto ptr = fopen(strname.data(), fopenmode);
+
+    auto ptr = fopen(Str(name).data(), fopenmode);
     if (ptr)
         impl = new std::shared_ptr<FILE>(ptr, fclose);
 }
@@ -62,7 +59,7 @@ struct maybefclose {
 
 struct console {
     console() {
-        in.impl = new std::shared_ptr<FILE>(stdin, maybefclose());
+        in.impl  = new std::shared_ptr<FILE>(stdin, maybefclose());
         out.impl = new std::shared_ptr<FILE>(stdout, maybefclose());
         err.impl = new std::shared_ptr<FILE>(stderr, maybefclose());
     }
@@ -84,6 +81,7 @@ console cons;
 
 static void print_to_file(file &f, const var &v, const var &end = {}) {
     auto file = Underlying(f).get();
+
     auto var = v + "";
     if (end.type != var::null)
         var += end;
@@ -92,9 +90,9 @@ static void print_to_file(file &f, const var &v, const var &end = {}) {
 }
 
 void file::print(std::initializer_list<var> vars, const var &end) {
-    size_t i = 0;
+    size_t i  = 0;
     auto size = vars.size();
-    var sep = " ";
+    var sep   = " ";
     for (const auto &v : vars)
         print_to_file(*this, v, ++i < size ? sep : end);
 }
@@ -104,24 +102,21 @@ void file::print(const var &fmt, std::initializer_list<var> vars, const var &end
         // you probably don't want to do this but what do i know
         return print_to_file(*this, fmt, end);
 
-    auto it = vars.begin();
+    auto it     = vars.begin();
     auto varend = vars.end();
 
     size_t lastpos = 0;
-    auto &str = Str(fmt);
     size_t pos;
+
+    auto &str = Str(fmt);
     while ((pos = str.find("{}", lastpos)) != std::string::npos) {
-        var v;
-        v.type = var::string;
-        new (v.u.buf) std::string(str.substr(lastpos, pos - lastpos));
+        var v = FromString(str.substr(lastpos, pos - lastpos));
         print_to_file(*this, v);
         lastpos = pos + 2;
         print_to_file(*this, it < varend ? *it++ : null);
     }
 
-    var v;
-    v.type = var::string;
-    new (v.u.buf) std::string(str.substr(lastpos));
+    var v = FromString(str.substr(lastpos));
 
     print_to_file(*this, v, end);
 }
@@ -140,15 +135,14 @@ var file::readline() {
     var ret;
     auto file = Underlying(*this).get();
 
-    char *line = nullptr;
+    char *line  = nullptr;
     size_t size = 0;
-    long l = getline(&line, &size, file);
+    long l      = getline(&line, &size, file);
     if (l != -1) {
         if (line[l - 1] == '\n')
             line[--l] = 0;
 
-        ret.type = var::string;
-        new (ret.u.buf) std::string(line, l);
+        ret = FromString({line, size_t(l)});
     }
 
     free(line);
@@ -179,16 +173,13 @@ var file::read(const var &len) {
 
     while (1) {
         auto want = std::min(remaining, bufsize);
-        long l = fread(buf, 1, want, file);
+        long l    = fread(buf, 1, want, file);
         if (l <= 0)
             break;
         remaining -= l;
         tmp += {buf, size_t(l)};
     }
 
-    ret.type = var::string;
-    new (ret.u.buf) std::string(tmp);
-
-    return ret;
+    return FromString(tmp);
 }
 } // namespace io
