@@ -46,7 +46,7 @@ VPATH = src
 
 # default target for now
 # will probably just leave librei.a and the tests at some point
-all: build/librei.a build/example build/testsuite build/aoc/all
+all: build/librei.a build/example build/life build/testsuite build/aoc/all
 
 build build/aoc:
 	mkdir -p $@
@@ -57,6 +57,9 @@ build/%.o: %.cpp | build
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
 build/example: example.cpp build/librei.a | build
+	$(LINK.cpp) $< $(LDLIBS) -o $@
+
+build/life: life.cpp build/librei.a | build
 	$(LINK.cpp) $< $(LDLIBS) -o $@
 
 build/testsuite: testsuite.cpp build/librei.a | build
