@@ -48,6 +48,22 @@ VPATH = src
 # will probably just leave librei.a and the tests at some point
 all: build/librei.a build/example build/life build/testsuite build/aoc/all
 
+ifdef INSTRUMENT
+    ifneq (,$(findstring clang,$(CXX)))
+        # clang produces some weird linker error with libstdc++
+        CXXFLAGS += -stdlib=libc++
+    endif
+    $(reiobjects): CXXFLAGS += -finstrument-functions
+    all: LDFLAGS += -rdynamic
+    all: extra/libinstrument.so
+    extra/instrument.o: CXXFLAGS += -fpic -O3
+    extra/libinstrument.so: LDFLAGS += -shared
+    extra/libinstrument.so: extra/instrument.o
+	    $(LINK.cpp) $< $(LDLIBS) -o $@
+    extra/%.o: %.cpp
+	    $(COMPILE.cpp) $(OUTPUT_OPTION) $<
+endif
+
 build build/aoc:
 	mkdir -p $@
 
@@ -77,7 +93,7 @@ build/aoc/%: aoc/%.cpp build/librei.a | build/aoc
 	$(LINK.cpp) $< $(LDLIBS) -o $@
 
 clean:
-	rm -rf file.tmp build
+	rm -rf file.tmp build extra/*o
 
 .PHONY: clean all build/aoc/all
 
