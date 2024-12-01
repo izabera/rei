@@ -40,4 +40,5 @@ struct dict {
     var reduce(var (*binary)(const var &, const var &)) const;
     dict filter(var (*unary)(const var &)) const;
     var join(const var &sep = {}) const;
+    void sort();
 };

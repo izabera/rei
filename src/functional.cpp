@@ -14,4 +14,8 @@ var typeof(const var &v) {
     }
     return "unreachable";
 }
+
+var abs(const var& v) {
+    return v < 0 ? -v : v;
+}
 } // namespace fn

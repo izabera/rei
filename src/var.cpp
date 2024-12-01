@@ -3,6 +3,7 @@
 #include "internal.hpp"
 #include <cmath>
 #include <cstring>
+#include <sstream>
 #include <string>
 
 // this is a bit of a hack because var.hpp can't include std::string
@@ -267,25 +268,35 @@ var var::operator[](const var &pos, const var &count) const {
 
 dict var::split(const var &s) const {
     auto self = ToString(*this);
-    auto sep  = ToString(s);
 
     dict d;
-
     size_t idx = 0;
-    if (sep != "") {
-        size_t prev_pos = 0, pos = 0;
-        while ((pos = self.find(sep, pos)) != std::string::npos) {
+    if (s.type != null) {
+        auto sep = ToString(s);
+
+        if (sep != "") {
+            size_t prev_pos = 0, pos = 0;
+            while ((pos = self.find(sep, pos)) != std::string::npos) {
+                auto substr = self.substr(prev_pos, pos - prev_pos);
+                d[idx++]    = FromString(substr);
+                prev_pos    = ++pos;
+            }
+
             auto substr = self.substr(prev_pos, pos - prev_pos);
             d[idx++]    = FromString(substr);
-            prev_pos    = ++pos;
         }
-
-        auto substr = self.substr(prev_pos, pos - prev_pos);
-        d[idx++]    = FromString(substr);
+        else {
+            for (auto c : self)
+                d[idx++] = FromString({c});
+        }
     }
     else {
-        for (auto c : self)
-            d[idx++] = FromString({c});
+        std::stringstream ss(self);
+        while (ss) {
+            std::string substring;
+            ss >> substring;
+            d[idx++] = FromString(substring);
+        }
     }
 
     return d;

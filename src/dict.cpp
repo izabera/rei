@@ -1,6 +1,7 @@
 #include "dict.hpp"
 #include "functional.hpp"
 #include "var.hpp"
+#include <algorithm>
 #include <map>
 #include <vector>
 
@@ -145,4 +146,14 @@ var dict::join(const var &sep) const {
         ret += v;
     }
     return ret;
+}
+
+void dict::sort() {
+    std::vector<var> values;
+    for (const auto& [k, v] : *this)
+        values.push_back(v);
+    std::sort(values.begin(), values.end(), [](const var& lhs, const var& rhs) { return (lhs < rhs).u.b; });
+    *this = {};
+    for (size_t i = 0; i < values.size(); i++)
+        (*this)[i] = values[i];
 }

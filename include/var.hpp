@@ -62,7 +62,15 @@ struct var {
     var operator[](const var &pos, const var &count = -1) const;
 
     var len() const;
-    dict split(const var &sep = " ") const;
+
+  private:
+    // https://github.com/llvm/llvm-project/issues/36032
+    // https://stackoverflow.com/questions/53408962/
+    // https://stackoverflow.com/questions/43819314/
+    static var __internal_null() { return {}; }
+
+  public:
+    dict split(const var &sep = __internal_null()) const;
     var strip(const var &chars = " \n") const;
 };
 
