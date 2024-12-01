@@ -1,0 +1,17 @@
+#!/bin/bash
+diff -u --color=auto \
+    <(
+      for i in {1..4}; do
+          build/aoc/2019_$i < aoc/2019_$i.input
+      done
+
+      for i in {1..1}; do
+          build/aoc/2024_$i < aoc/2024_$i.input
+      done
+      ) \
+    <(echo 3246455 4866824
+      echo 4576384 5398
+      echo 386 6484
+      echo 1246 814
+
+      echo 765748 27732508) && echo ok
