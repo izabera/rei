@@ -150,6 +150,9 @@ int main(int argc, char **argv) {
     }
 
     check_equal("123 456"_v.split()[1], 456);
+    check_equal("123 456"_v.split("").size(), 7);
+    check_equal("123   456"_v.split(" ").size(), 4);
+    check_equal("123   456"_v.split().size(), 2);
 
     {
         auto file = io::file("file.tmp");

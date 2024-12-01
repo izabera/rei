@@ -292,9 +292,8 @@ dict var::split(const var &s) const {
     }
     else {
         std::stringstream ss(self);
-        while (ss) {
-            std::string substring;
-            ss >> substring;
+        std::string substring;
+        while (ss >> substring) {
             d[idx++] = FromString(substring);
         }
     }
