@@ -5,7 +5,7 @@ diff -u --color=auto \
           build/aoc/2019_$i < aoc/2019_$i.input
       done
 
-      for i in {1..1}; do
+      for i in {1..2}; do
           build/aoc/2024_$i < aoc/2024_$i.input
       done
       ) \
@@ -14,4 +14,6 @@ diff -u --color=auto \
       echo 386 6484
       echo 1246 814
 
-      echo 765748 27732508) && echo ok
+      echo 765748 27732508
+      echo 502 544
+      ) && echo ok

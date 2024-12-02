@@ -20,6 +20,7 @@ struct dict {
     bool contains(const var &) const;
     var size() const;
     void resize(const var &size);
+    void remove(const var &key);
 
     struct kv {
         var key;

@@ -196,4 +196,15 @@ int main(int argc, char **argv) {
         y = {};
         x = y;
     }
+
+    {
+        dict d;
+        d[0] = "foo";
+        d[1] = "bar";
+        d[2] = "baz";
+        d.remove(1);
+        check_equal(d[0], "foo");
+        check_equal(d[2], "baz");
+        check_equal(d.size(), 2);
+    }
 }

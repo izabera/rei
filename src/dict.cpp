@@ -106,6 +106,23 @@ void dict::resize(const var &size) {
         Vec(*this).resize(long((+size).u.num));
     // does it even make sense otherwise?  idk
 }
+void dict::remove(const var &key) {
+    if (type == contiguous && key.type == var::number) {
+        auto &vec = Vec(*this);
+        auto pos = (+key).u.num;
+        if (pos != long(pos) || long(pos) >= long(vec.size()))
+            return;
+
+        auto map = new maptype;
+        for (long i = 0; i < long(vec.size()); i++)
+            (*map)[i] = std::move(vec[i]);
+
+        delete &Vec(*this);
+        impl = map;
+        type = sparse;
+    }
+    Map(*this).erase(key);
+}
 
 dict dict::map(fn::unary f) const {
     dict ret;
